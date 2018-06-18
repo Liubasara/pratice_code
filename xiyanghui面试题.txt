@@ -1,0 +1,36 @@
+xiyanghui面试题
+//第一题
+class User
+{
+    public $username;
+
+    public function __construct($username="")
+    {
+        $this->username = $username;
+    }
+}
+
+$users = [
+    new User('user 1'),
+    new User('user 2'),
+    new User('user 3'),
+];
+
+$usernames = array_map(function($el){
+    return $el->username;
+}, $users);
+
+print_r($usernames)
+
+//第二题
+$(function () {
+	$.ajaxSetup({  
+    	async : false //取消异步  
+	}); 
+
+    $.get( "http://127.0.0.1:8000/goods/", function( data ) {
+       $("body").append("aaa");
+    });
+    $("body").append("bbb");
+});
+
