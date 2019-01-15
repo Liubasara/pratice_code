@@ -1,6 +1,18 @@
-# FIXME: 2604ms渣操  有待优化
 class Solution:
+  # 160ms 题解实现
   def lengthOfLongestSubstring(self, s):
+    ans = 0
+    sHashDict = {}
+    i = 0
+    for j in range(len(s)):
+      if sHashDict.__contains__(s[j]):
+        i = max(sHashDict[s[j]], i)
+      ans = max(ans, j - i + 1)
+      sHashDict[s[j]] = j + 1
+    return ans
+    
+  # 2604ms渣操
+  def oldlengthOfLongestSubstring(self, s):
     """
     :type s: str
     :rtype: int
@@ -26,4 +38,4 @@ class Solution:
     
 if __name__ == "__main__":
   a = Solution()
-  print(a.lengthOfLongestSubstring("abcabcbc"))
+  print(a.lengthOfLongestSubstring("kewwke"))
