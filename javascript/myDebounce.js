@@ -1,7 +1,7 @@
 const myDebounce = (func, wait = 50) => {
-  let timer = 0
+  let timer
   return function (...args) {
-    if (timer) clearTimeout(timer)
+    if (typeof timer !== 'undefined') clearTimeout(timer)
     timer = setTimeout(() => {
       func.apply(this, args)
     }, wait)
