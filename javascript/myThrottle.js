@@ -1,3 +1,4 @@
+// 时间戳
 const myThrottle = function (func, wait = 50) {
   let lastTime = 0
   return function (...args) {
