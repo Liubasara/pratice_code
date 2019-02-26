@@ -73,6 +73,12 @@ class MyPromise {
     })
     return myPromise2
   }
+  
+  // catch 函数(非核心)
+  catch (onRejected) {
+    // 默认不成功
+    return this.then(null, onRejected)
+  }
 }
 
 
@@ -99,6 +105,7 @@ function resolvePromise(myPromise2, x, resolve, reject) {
     try {
       let then = x.then
       if (typeof then === "function") {
+        // Promise 对象
         then.call(
           x,
           y => {
@@ -113,6 +120,7 @@ function resolvePromise(myPromise2, x, resolve, reject) {
           }
         )
       } else {
+        // 普通对象
         resolve(x)
       }
     } catch (e) {
@@ -123,6 +131,46 @@ function resolvePromise(myPromise2, x, resolve, reject) {
   } else {
     resolve(x)
   }
+}
+
+// 以下是其他的方法
+MyPromise.resolve = function (value) {
+  return new MyPromise((resolve, reject) => {
+    resolve(value)
+  })
+}
+
+MyPromise.reject = function (value) {
+  return new MyPromise((resolve, reject) => {
+    reject(value)
+  })
+}
+
+MyPromise.race = function (promises) {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+      promises[i].then(resolve, reject)
+    }
+  })
+}
+
+MyPromise.all = function (promises) {
+  return new Promise((resolve, reject) => {
+    let successArr = []
+    let successCount = 0
+    function processData (index, data) {
+      successArr[index] = data
+      // 判断数组中成功的数量是否等于promises中元素的数量
+      if (++successCount === promises.length) {
+        resolve(successArr)
+      }
+    }
+    for (let i = 0; i < promises.length; i++) {
+      promises[i].then(data => {
+        processData(i, data)
+      }, reject)
+    }
+  })
 }
 
 // test
