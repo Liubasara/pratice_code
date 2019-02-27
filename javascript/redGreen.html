@@ -21,6 +21,23 @@
     var stopButton = document.getElementById('stop')
     var nextColor = 'green'
     var timer
+    function changeColor () {
+      return setTimeout(function changeColor () {
+        div.style.backgroundColor = nextColor
+        switch (nextColor) {
+          case 'green':
+            nextColor = 'yellow'
+            break
+          case 'red':
+            nextColor = 'green'
+            break
+          case 'yellow':
+            nextColor = 'red'
+            break
+        }
+        timer = setTimeout(changeColor, 500)
+      }, 500)
+    }
     timer = changeColor()
     stopButton.onclick = function (event) {
       if (timer) {
@@ -32,24 +49,11 @@
     }
     reset.onclick = function (event) {
       div.style.backgroundColor = null
+      nextColor = 'green'
       if (timer) {
         clearTimeout(timer)
         timer = null
       }
-    }
-    function changeColor () {
-      return setTimeout(function changeColor () {
-        div.style.backgroundColor = nextColor
-        switch (nextColor) {
-          case 'green':
-            nextColor = 'red'
-            break
-          case 'red':
-            nextColor = 'green'
-            break
-        }
-        timer = setTimeout(changeColor, 500)
-      }, 500)
     }
   }
 </script>
