@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+      <img src="default.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+  </body>
+  <script>
+    // 图片懒加载 !
+    window.onload = function () {
+      var allImg = document.getElementsByTagName('IMG')
+      var n = 0 //存储图片加载到的位置，避免每次都从第一张图片开始遍历
+      const DEFAULT_IMG = 'default.jpg'
+      function lazyLoad () {
+        let docElement = document.documentElement
+        Array.from(allImg).slice(n).forEach((item, index) => {
+          if ((item.offsetTop < docElement.scrollTop + docElement.clientHeight) && item.getAttribute('src') === DEFAULT_IMG) {
+            item.setAttribute('src', item.dataset.src)
+            n = index
+          }
+        })
+      }
+      lazyLoad() // 页面初始化第一次加载
+      window.onscroll = lazyLoad // 绑定监听函数, 还可以加入节流函数
+    }
+  </script>
+  <style>
+    img {
+      display: block;
+      margin-bottom: 50px;
+      width: 400px;
+      height: 400px;
+    }
+  </style>
+</html>
