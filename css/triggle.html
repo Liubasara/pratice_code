@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Triggle Circle</title>
+</head>
+<body>
+  <div class="triggle"></div>
+  <div class="circle"></div>
+  <div class="half-circle"></div>
+</body>
+<style>
+ * {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+ }
+ html, body {
+   height: 100%;
+ }
+ .triggle {
+   height: 0;
+   width: 0;
+
+   border-top: 32px solid transparent;
+   border-left: 55.42px solid red;
+   border-bottom: 32px solid transparent;
+ }
+ .circle {
+   height: 0;
+   width: 0;
+
+   border: 32px solid red;
+   border-radius: 50%;
+ }
+ .half-circle {
+   height: 0;
+   width: 0;
+   border: 32px;
+
+   border-style: solid;
+   border-color: red;
+   border-radius: 50%;
+   border-right: 32px solid transparent;
+   border-bottom: 32px solid transparent;
+   transform: rotate(45deg)
+ }
+</style>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div id="redGreen" class="red-green"></div>
+    </div>
+    <button id="stop">stop</button>
+    <button id="reset">reset</button>
+  </div>
+</body>
+<script>
+  window.onload = function () {
+    var div = document.getElementById('redGreen')
+    var stopButton = document.getElementById('stop')
+    var nextColor = 'green'
+    var timer
+    function changeColor () {
+      return setTimeout(function changeColor () {
+        div.style.backgroundColor = nextColor
+        switch (nextColor) {
+          case 'green':
+            nextColor = 'yellow'
+            break
+          case 'red':
+            nextColor = 'green'
+            break
+          case 'yellow':
+            nextColor = 'red'
+            break
+        }
+        timer = setTimeout(changeColor, 500)
+      }, 500)
+    }
+    timer = changeColor()
+    stopButton.onclick = function (event) {
+      if (timer) {
+        clearTimeout(timer)
+        timer = null
+      } else {
+        timer = changeColor()
+      }
+    }
+    reset.onclick = function (event) {
+      div.style.backgroundColor = null
+      nextColor = 'green'
+      if (timer) {
+        clearTimeout(timer)
+        timer = null
+      }
+    }
+  }
+</script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+.wrapper {
+  text-align: center;
+}
+.container {
+  display: flex;
+  justify-content: center;
+}
+.red-green {
+  border-radius: 50% 50%;
+  background-color: red;
+  height: 20px;
+  width: 20px;
+}
+</style>
+</html>

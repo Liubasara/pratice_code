@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div class="border-box-example">
+    <div class="content">
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, error numquam aperiam deleniti optio necessitatibus sequi nemo amet assumenda cumque vero consequatur maxime temporibus mollitia aspernatur eius quae sit earum?</p>
+    </div>
+    <div class="footer">
+      footer
+    </div>
+  </div>
+
+  <!-- <div class="content-box-example">
+    <div class="content">
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur quis esse harum quaerat fugit nobis asperiores eaque minus, distinctio, exercitationem magni dolores? Aperiam beatae aspernatur, porro dolorem dolores libero optio.
+    </div>
+    <div class="footer">
+      footer
+    </div>
+  </div> -->
+</body>
+<style>
+  * {margin: 0;padding: 0;}
+  html, body {
+    height: 100%;
+  }
+  .border-box-example {
+    box-sizing: border-box;
+    position: relative;
+    min-height: 100%;
+    padding-bottom: 100px;
+  }
+  .border-box-example > .footer {
+    position: absolute;
+    height: 100px;
+    bottom: 0;
+  }
+
+
+  .content-box-example {
+    min-height: 100%;
+    position: relative
+  }
+  .content-box-example > .content {
+    box-sizing: content-box;
+    padding-bottom: 100px;
+  }
+  .content-box-example > .footer {
+    position: absolute;
+    height: 100px;
+    bottom: 0;
+  }
+</style>
+</html>
