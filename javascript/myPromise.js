@@ -71,7 +71,7 @@ class MyPromise {
         }, 0)
       }
     })
-    return myPromise2
+    return myPromise2 // 返回这个myPromise2 正常情况下，经过递归处理以后，该myPromise2的this.value值是一个最终确定的值而不会是一个Promise
   }
   
   // catch 函数(非核心)
@@ -147,7 +147,7 @@ MyPromise.reject = function (value) {
 }
 
 MyPromise.race = function (promises) {
-  return new Promise((resolve, reject) => {
+  return new MyPromise((resolve, reject) => {
     for (let i = 0; i < promises.length; i++) {
       promises[i].then(resolve, reject)
     }
@@ -155,7 +155,7 @@ MyPromise.race = function (promises) {
 }
 
 MyPromise.all = function (promises) {
-  return new Promise((resolve, reject) => {
+  return new MyPromise((resolve, reject) => {
     let successArr = []
     let successCount = 0
     function processData (index, data) {
