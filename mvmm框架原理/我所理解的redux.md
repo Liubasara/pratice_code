@@ -1,3 +1,38 @@
+```javascript
+// 用下面的方法可以创建一个 store
+function createStore (reducer) {
+  let state = null
+  const listeners = []
+  const subscribe = (listener) => listeners.push(listener)
+  const getState = () => state
+  const dispatch = (action) => {
+    state = reducer(state, action)
+    listeners.forEach((listener) => listener())
+  }
+  dispatch({}) // 初始化 state
+  return { getState, dispatch, subscribe }
+}
+```
+
+```javascript
+// 一个 reducer 应该包含初始化的 state 以及修改 state 的 action，如下就是一个 reducer 例子
+function themeReducer (state, action) {
+  if (!state) return {
+    themeName: 'Red Theme',
+    themeColor: 'red'
+  }
+  switch (action.type) {
+    case 'UPATE_THEME_NAME':
+      return { ...state, themeName: action.themeName }
+    case 'UPATE_THEME_COLOR':
+      return { ...state, themeColor: action.themeColor }
+    default:
+      return state
+  }
+}
+const store = createStore(themeReducer)
+```
+
 ![我所理解的redux.png](./images/我所理解的redux.png)
 
 **subscribe 订阅的渲染函数及订阅的渲染过程如下所示**：
