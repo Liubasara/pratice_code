@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="https://cdn.bootcss.com/require.js/2.3.3/require.js"></script>
+</head>
+<body>
+    <div id="app">
+        <router-link to="/foo">Go to Foo</router-link>
+        <router-view></router-view>
+    </div>
+</body>
+</html>
+
+<script>
+require.config(
+    {
+        paths: {
+            'vue': 'https://cdn.bootcss.com/vue/2.3.4/vue',
+            'vueRouter': 'https://cdn.bootcss.com/vue-router/2.7.0/vue-router'
+        }
+    }
+);
+
+require(['vue', 'vueRouter'], function (Vue, Router) {
+
+    const Foo = { template: '<div>foo</div>' }
+
+    const routes = [
+        { path: '/foo', component: Foo }
+    ]
+
+    const router = new Router({
+        routes: routes // （缩写）相当于 routes: routes
+    })
+
+    Vue.use(Router)
+
+    new Vue({
+        el: "#app",
+        router
+    })
+
+})
+</script>
