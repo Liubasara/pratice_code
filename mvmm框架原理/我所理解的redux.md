@@ -1,3 +1,11 @@
+**2019/8/14 update**
+
+我所理解的 Redux 之 react-redux。
+
+![我所理解的Redux-2.jpg](./images/我所理解的Redux-2.jpg)
+
+---
+
 ```javascript
 // 用下面的方法可以创建一个 store
 function createStore (reducer) {
