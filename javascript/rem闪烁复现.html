@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <script>
+      /**
+      * rem 闪烁的问题在于，没有在 DOM 渲染之前将给 document 标签加上 font-size，导致各浏览器由于其基准的 font-size (一般是 16px )与开发时的基准 font-size (一般是 10px 或 100px )不同
+      * 于是浏览器在以 16px 为基准渲染了一遍以后，document 标签 font-size 改变，浏览器又重新根据新的 font-size 渲染了一遍，造成了视觉上的闪烁效果，其效果复现如下所示。
+      */
+      function getRem () {
+        var docElement = document.documentElement;
+        var clientWidthValue = docElement.clientWidth > 750 ? 750 : docElement.clientWidth;
+        docElement.style.fontSize = 50*(clientWidthValue/375) + 'px';
+      }
+      setTimeout(() => {
+        getRem()
+        window.addEventListener('resize', getRem)
+        var pText = document.createElement('p')
+        pText.innerText = 'after 1rem'
+        pText.style.fontSize = '1rem'
+        document.body.appendChild(pText)
+      }, 2000)
+    </script>
+  </head>
+  <body>
+    <p style="font-size: 1rem;">1rem</p>
+  </body>
+</html>
