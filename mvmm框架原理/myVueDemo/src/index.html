@@ -7,6 +7,35 @@
     <title>Document</title>
 </head>
 <body>
-    test
+    <div id="app">
+        <div>{{ message }}</div>
+        <button type="button" v-on:click="addMessage">add</button>
+    </div>
 </body>
+<script src="./watcher.js"></script>
+<script src="./dep.js"></script>
+<script src="./compile.js"></script>
+<script src="./observer.js"></script>
+<script src="./index.js"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        mounted () {
+            setTimeout(() => {
+                this.message = 2
+            }, 2000)
+        },
+        data () {
+            return {
+                message: 123
+            }
+        },
+        methods: {
+            addMessage () {
+                this.message += 1
+            }
+        }
+    })
+</script>
 </html>
