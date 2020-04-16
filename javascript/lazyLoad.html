@@ -28,7 +28,9 @@
       function lazyLoad () {
         let docElement = document.documentElement
         Array.from(allImg).slice(n).forEach((item, index) => {
-          if ((item.offsetTop < docElement.scrollTop + docElement.clientHeight) && item.getAttribute('src') === DEFAULT_IMG) {
+          // if ((item.offsetTop < docElement.scrollTop + docElement.clientHeight) && item.getAttribute('src') === DEFAULT_IMG) {
+          // 条件代码可读性优化：用 可视区域高度 减去 元素顶部距离可视区域顶部的高度，如果可视区域高度大于等于元素顶部距离可视区域顶部的高度，说明元素露出
+          if (( docElement.clientHeight - item.getBoundingClientRect().top > 0 ) && item.getAttribute('src') === DEFAULT_IMG) {
             item.setAttribute('src', item.dataset.src)
             n = index
           }
