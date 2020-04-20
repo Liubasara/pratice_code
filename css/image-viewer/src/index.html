@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/css/reset.css" />
+    <style>
+      /* layout */
+      body {
+        background-color: #eee;
+      }
+      .container {
+        position: absolute;
+        width: 900px;
+        height: 600px;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        margin: auto;
+        background-color: white;
+      }
+      .info-container {
+        height: 100%;
+      }
+    </style>
+    <style>
+      /* 内部样式 */
+      .drag-action {
+        padding: 10px;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+      }
+      .scale-big,
+      .scale-small {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+        cursor: pointer;
+        margin: 0 20px;
+      }
+      .drag-box {
+        margin: auto;
+        height: 530px;
+        border-top: 1px solid #dcdcdc;
+        border-bottom: 1px solid #dcdcdc;
+        position: relative;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .drag-img {
+        position: absolute;
+        cursor: move;
+      }
+      .icon-one-pre {
+        width: 22px;
+        height: 22px;
+        border: 1px solid;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 10px;
+        line-height: 18px;
+        cursor: pointer;
+      }
+      .close-icon {
+        width: 22px;
+        height: 22px;
+        border: 1px solid;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 20px;
+        line-height: 18px;
+        cursor: pointer;
+        color: #333;
+      }
+    </style>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="info-container">
+        <div class="drag-action">
+          <div class="close-icon" on-click="_closeViewer">X</div>
+          <img
+            src="./assets/img/scale-small.png"
+            alt="-"
+            class="scale-small"
+            title="缩小"
+          />
+          <div class="icon-one-pre" title="实际大小">1:1</div>
+          <img
+            src="./assets/img/scale-big.png"
+            alt="+"
+            title="放大"
+            class="scale-big"
+          />
+        </div>
+        <div class="drag-box">
+          <img
+            id="img-item"
+            src="./assets/img/test.jpg"
+            alt="拖拽图"
+            class="drag-img"
+          />
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    // tool
+    const $ = function (selector) {
+      const results = document.querySelectorAll(selector)
+      return results.length === 1 ? results[0] : results
+    }
+  </script>
+  <script src="./assets/js/drag-move.js"></script>
+  <script>
+    window.onload = function () {
+      const drag = $('#img-item')
+      const dragBox = $('.drag-box')
+      const dragImg = new DragScale(drag, { wrapWidth: dragBox.clientWidth })
+      // 拖动
+      dragImg.drag()
+      // 滚轮
+      $('.drag-box').addEventListener('mousewheel', function (e) {
+        dragImg.scale(0)
+        e.preventDefault()
+        return false
+      })
+      // 放大
+      $('.scale-big').onclick = function () {
+        dragImg.scale(1)
+      }
+      // 缩小
+      $('.scale-small').onclick = function () {
+        dragImg.scale(2)
+      }
+      // 1:1
+      $('.icon-one-pre').onclick = function () {
+        dragImg.resetSize()
+      }
+    }
+  </script>
+</html>
