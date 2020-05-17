@@ -106,7 +106,24 @@ postorder(rootNode)
 
 // 非递归遍历版
 function postorderTraversal (root) {
-  // TODO:
+  let stack = []
+  let res = []
+  stack.push(root)
+  while (stack.length) {
+    let node = stack.pop()
+    res.unshift(node.val)
+    
+    if (node.left) {
+      stack.push(node.left)
+    }
+    if (node.right) {
+      stack.push(node.right)
+    }
+  }
+  res.forEach(item => {
+    console.log(`当前非递归遍历后序遍历的节点值为${item}`)
+  })
+  return res
 }
 
 postorderTraversal(rootNode)
