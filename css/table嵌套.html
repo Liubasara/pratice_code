@@ -1,4 +1,7 @@
-<!-- 多层 table 嵌套参考资料：https://blog.csdn.net/cb2474600377/article/details/45533555 -->
+<!-- 多层 table 嵌套参考资料：
+     - https://blog.csdn.net/cb2474600377/article/details/45533555
+     - https://www.cnblogs.com/josephchan/archive/2011/03/10/html_table_merge_column.html
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,7 +26,7 @@
         border: 1px solid #ccc;
       }
       .div {
-        width: 600px;
+        width: 100%;
         height: auto;
       }
     </style>
@@ -33,10 +36,14 @@
       <table class="outTable">
         <thead>
           <tr>
-            <td width="160px">班级名称</td>
+            <td width="150px" rowspan="2">班级名称</td>
+            <td width="150px" colspan="2">学生信息</td>
+            <td width="150px" rowspan="2">课程名称</td>
+            <td rowspan="2">课程成绩</td>
+          </tr>
+          <tr>
             <td width="150px">学生名称</td>
-            <td width="150px">课程名称</td>
-            <td>课程成绩</td>
+            <td width="150px">学生学号</td>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +52,8 @@
             <td colspan="4">
               <table frame="void" class="inTable">
                 <tr>
-                  <td width="149px">张三</td>
+                  <td width="150px">张三</td>
+                  <td width="150px">2号</td>
                   <td colspan="3">
                     <table frame="void" class="inTable">
                       <tr>
@@ -60,7 +68,8 @@
                   </td>
                 </tr>
                 <tr>
-                  <td width="149px">李四</td>
+                  <td width="150px">李四</td>
+                  <td width="150px">3号</td>
                   <td colspan="3">
                     <table frame="void" class="inTable">
                       <tr>
