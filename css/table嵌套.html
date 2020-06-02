@@ -1,0 +1,84 @@
+<!-- 多层 table 嵌套参考资料：https://blog.csdn.net/cb2474600377/article/details/45533555 -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>无标题文档</title>
+    <style>
+      table {
+        text-align: center;
+        border-collapse: collapse;
+        padding: 0;
+        margin: 0;
+      }
+      .outTable {
+        width: 100%;
+        height: auto;
+      }
+      .inTable {
+        width: 100%;
+        height: 100%;
+      }
+      .outTable td {
+        border: 1px solid #ccc;
+      }
+      .div {
+        width: 600px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="div">
+      <table class="outTable">
+        <thead>
+          <tr>
+            <td width="160px">班级名称</td>
+            <td width="150px">学生名称</td>
+            <td width="150px">课程名称</td>
+            <td>课程成绩</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>信息与计算科学1班</td>
+            <td colspan="4">
+              <table frame="void" class="inTable">
+                <tr>
+                  <td width="149px">张三</td>
+                  <td colspan="3">
+                    <table frame="void" class="inTable">
+                      <tr>
+                        <td width="149px">高等数学</td>
+                        <td>80</td>
+                      </tr>
+                      <tr>
+                        <td>大学英语</td>
+                        <td>85</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="149px">李四</td>
+                  <td colspan="3">
+                    <table frame="void" class="inTable">
+                      <tr>
+                        <td width="149px">基础物理</td>
+                        <td>80</td>
+                      </tr>
+                      <tr>
+                        <td>形式政治</td>
+                        <td>80</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
