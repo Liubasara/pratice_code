@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button onclick="clickGetJson()">clickToInsertJson</button>
+  <script>
+     function tempCbFunc (res) {
+        // 临时回调函数
+        console.log(res)
+      }
+  </script>
+  <script>
+    function clickGetJson () {
+      let tempScript = document.createElement('script')
+      tempScript.src = '/jsonpApi?callback=tempCbFunc'
+      tempScript.onload = function (e) {
+        /**
+         * 知识点：script 的 onload 事件永远会在获得的 script 脚本被执行完成后的下一个宏任务触发
+         * **/
+        document.body.removeChild(tempScript)
+        
+      }
+      document.body.appendChild(tempScript)
+    }
+  </script>
+</body>
+</html>
