@@ -17,6 +17,8 @@
 <script src="./compile.js"></script>
 <script src="./observer.js"></script>
 <script src="./index.js"></script>
+<script src="./canvas2image.js"></script>
+<script src="./html2canvas.min.js"></script>
 
 <script>
     new Vue({
@@ -37,5 +39,11 @@
             }
         }
     })
+    setTimeout(() => {
+        html2canvas(document.querySelector('#app'), { useCORS: true, allowTaint: false }).then(canvas => {
+            const imageEl = Canvas2Image.convertToPNG(canvas, canvas.width, canvas.height)
+            Canvas2Image.saveAsPNG(canvas, canvas.width, canvas.height)
+        })
+    }, 5000)
 </script>
 </html>

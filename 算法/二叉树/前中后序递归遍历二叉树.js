@@ -48,7 +48,7 @@ function preorder(root) {
 preorder(rootNode)
 
 // 非递归遍历版
-function preorderTraversal (root) {
+function preorderTraversal1 (root) {
   let tmp = root
   let stack = []
   while (stack.length !== 0 || tmp !== null) {
@@ -63,7 +63,25 @@ function preorderTraversal (root) {
   }
 }
 
-preorderTraversal(rootNode)
+preorderTraversal1(rootNode)
+
+// 更好理解的非递归遍历版
+function preorderTraversal2 (root) {
+  const stack = []
+  stack.push(root)
+  while (stack.length > 0) {
+    const node = stack.pop()
+    console.log(`当前非递归遍历前序遍历的节点值为${node.val}`)
+    if (node.right) {
+      stack.push(node.right)
+    }
+    if (node.left) {
+      stack.push(node.left)
+    }
+  }
+}
+
+preorderTraversal2(rootNode)
 
 /**============= 中序遍历 ====================*/
 function inorder(root) {
@@ -77,17 +95,16 @@ inorder(rootNode)
 
 // 非递归遍历版
 function inorderTraversal (root) {
+  const stack = []
   let tmp = root
-  let stack = []
-  while (stack.length !== 0 || tmp !== null) {
-    if (tmp !== null) {
+  while (stack.length > 0 || !!tmp) {
+    while (!!tmp) {
       stack.push(tmp)
       tmp = tmp.left
-    } else {
-      let node = stack.pop()
-      console.log(`当前非递归遍历中序遍历的节点值为${node.val}`)
-      tmp = node.right
     }
+    const node = stack.pop()
+    console.log(node.val)
+    tmp = node.right
   }
 }
 

@@ -26,27 +26,24 @@ function myAjax(params) {
 /*
  * Promise包装Ajax
  */
-function ajax(options) {
-  return new Promise(function(resolve, reject) {
-    // 1通知成功 通知失败（通知then)
-    let { method, url } = options
-    if (!method) {
-      throw new Error("需要 method")
-    }
-    url = url || location.href
-    let xhr = window.XMLHttpRequest
-      ? new XMLHttpRequest()
-      : new ActiveXObject("Microsoft.XMLHTTP")
-    xhr.open(method, url)
-    xhr.onreadystatechange = function() {
+function myAjax (options = {}) {
+  return new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest()
+    xhr.open(options.method, options.url)
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status >= 200 && xhr.status < 400) {
-          resolve.call(null, xhr.responseText) // 2通知成功·
-        } else if (xhr.status >= 400) {
-          reject.call(null, xhr) // 3通知失败
+          resolve(xhr.responseText)
+        } else {
+          reject(xhr)
         }
       }
     }
-    xhr.send()
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    if (xhr.method === 'GET') {
+      xhr.send()
+    } else {
+      xhr.send(options.data)
+    }
   })
 }

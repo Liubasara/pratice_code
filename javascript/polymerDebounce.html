@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polymer Debounce 实现</title>
+</head>
+<body>
+  <button onclick="clickButton()">click-me</button>
+</body>
+<script>
+  // 使用单例模式
+  function Debounce () {
+    return {}
+  }
+  function getSingle (fn, ...args) {
+    let res
+    return function () {
+      return res || (res = fn.apply(this, args))
+    }
+  }
+  const getSingleDebounce = getSingle(Debounce)
+
+  function debounce (key, fn, delay, root) {
+    if (!root) root = window
+    const singleDebounce = getSingleDebounce()
+    // 一个简单的观察者模式
+    if (!singleDebounce[key]) {
+      singleDebounce[key] = {
+        function: fn,
+        timer: null
+      }
+    }
+    const triggleFunc = singleDebounce[key]['function']
+    const triggleTimer = singleDebounce[key]['timer']
+    if (triggleTimer) {
+      clearTimeout(triggleTimer)
+      singleDebounce[key]['timer'] = null
+    }
+    singleDebounce[key]['timer'] = setTimeout(fn.bind(root), delay)
+  }
+
+  function clickButton () {
+    debounce('button-click', () => {
+      console.log(123)
+    }, 2000, this)
+  }
+</script>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>实现长按监听按钮点击功能</title>
+  </head>
+  <body>
+    <div id="button-wrapper">
+      <button id="button">click or long click</button>
+    </div>
+
+    <div id="effect"></div>
+
+    <script>
+      let count = 0
+      let longClick = false
+      let timer
+      const effectEl = document.querySelector('#effect')
+
+      effectEl.innerHTML = count
+      const buttonEl = document.querySelector('#button-wrapper')
+      buttonEl.addEventListener('click', function () {
+        if (!longClick) {
+          effectEl.innerHTML = ++count
+        }
+        longClick = false
+      })
+      buttonEl.addEventListener('mousedown', function (e) {
+        clickTime = new Date().getTime()
+        timer = setTimeout(() => {
+          effectEl.innerHTML = '长按事件'
+          longClick = true
+        }, 2000)
+      })
+      buttonEl.addEventListener('mouseup', function (e) {
+        e = e || window.event
+        e.stopImmediatePropagation()
+        if (!longClick) {
+          clearTimeout(timer)
+        }
+      })
+    </script>
+  </body>
+</html>

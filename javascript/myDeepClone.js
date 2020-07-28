@@ -3,6 +3,11 @@ function isObject (obj) {
   return typeof obj === 'object' && obj !== null
 }
 
+/**
+ * 
+ * @param {Array<any>|{[key: any]: any}} source 
+ * @param {WeakMap} hash 
+ */
 function myDeepClone (source, hash = new WeakMap()) {
   if (!isObject(source)) return source // 非Object和Array直接返回它的值
   if (hash.has(source)) return hash.get(source) // 若hash表中有该对象，则直接返回该对象的值(解决循环引用)
@@ -11,7 +16,7 @@ function myDeepClone (source, hash = new WeakMap()) {
   hash.set(source, target)
   
   for (let key in source) {
-    if (Object.prototype.hasOwnProperty.call(source, key)) {
+    if (Object.hasOwnProperty.call(source, key)) {
       if (isObject(source[key])) {
         target[key] = myDeepClone(source[key], hash) // 递归调用，传入hash表
       } else {
@@ -20,6 +25,41 @@ function myDeepClone (source, hash = new WeakMap()) {
     }
   }
   return target
+}
+
+var a = { b: { name: 'b' } }
+a.c = a
+var b = myDeepClone(a)
+
+/**
+ * 最后，我把克隆函数单独拎出来了，实际上克隆函数是没有实际应用场景的
+ * 两个对象使用一个在内存中处于同一个地址的函数也是没有任何问题的
+ * @param {Function} func 
+ * @returns {Function}
+ */
+function cloneFunction(func) {
+  const bodyReg = /(?<={)(.|\n)+(?=})/m;
+  const paramReg = /(?<=\().+(?=\)\s+{)/;
+  const funcString = func.toString();
+  if (func.prototype) {
+      console.log('普通函数');
+      const param = paramReg.exec(funcString);
+      const body = bodyReg.exec(funcString);
+      if (body) {
+          console.log('匹配到函数体：', body[0]);
+          if (param) {
+              const paramArr = param[0].split(',');
+              console.log('匹配到参数：', paramArr);
+              return new Function(...paramArr, body[0]);
+          } else {
+              return new Function(body[0]);
+          }
+      } else {
+          return null;
+      }
+  } else {
+      return eval(funcString);
+  }
 }
 
 /**

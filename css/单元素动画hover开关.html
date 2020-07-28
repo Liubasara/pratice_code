@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      background: lightblue;
+    }
+    .wrapper {
+      height: 40px;
+    }
+  </style>
+  <div class="wrapper">
+    <div class="container"></div>
+    <style>
+      /**
+        用CSS实现一个开关样式，hover时触发，滑块为正方形，具体大小可随意，如下图
+        实现如下要求:
+          开关动作均有动画过度（滑块移位、背景色）
+          只用一个dom元素实现
+          开关的高度是固定的（40px），但宽度不固定，即宽度为未知父元素的100%，宽度始终大于高度
+      **/
+      .container {
+        height: 40px;
+        width: 100%;
+        background: gray;
+        transition: .5s ease-in-out;
+      }
+      .container:hover {
+        background: green;
+      }
+      .container::after {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 40px;
+        background: #fff;
+        transition: .5s ease-in-out;
+      }
+      .container:hover::after {
+        /* transform: translateX(100%); */
+        margin-left: calc(100% - 40px);
+      }
+    </style>
+  </div>
+
+  <div class="switch-checkbox" style="margin-top: 20px;">
+    <input type="checkbox" class="switch-input" checked>
+  </div>
+  <style>
+    /**
+      实现一个更实用的点击 checkbox
+      参考链接：https://juejin.im/post/5c8322a9e51d452fee00b70f
+    **/
+    .switch-checkbox {
+      height: 40px;
+    }
+    .switch-input {
+      display: block;
+      position: relative;
+      height: 100%;
+      width: 100%;
+      border-radius: 5px;
+      outline: none;
+      appearance: normal;
+      -webkit-appearance: none;/*去除默认样式*/
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      -o-appearance: none;
+      -ms-appearance: none;
+    }
+    .switch-input::before {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 100%;
+      border-radius: 10px;
+      background: #e3e3e3;
+    }
+    .switch-input:checked::before {
+      background: #05abc1;
+    }
+    .switch-input::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
+      display: block;
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      background: white;
+      transition: .5s ease-in-out;
+    }
+    .switch-input:checked::after {
+      margin-left: calc(100% - 40px);
+    }
+  </style>
+  
+</body>
+</html>
