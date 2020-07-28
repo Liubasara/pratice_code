@@ -130,5 +130,28 @@ var longestValidParentheses = function (s) {
   return maxans
 };
 
+/**
+ * 简单做法：入栈出栈
+ */
+function longestValidParentheses (s) {
+  if (s.length <= 1) return 0
+  const stack = []
+  const strArr = s.split('')
+  let maxNum = 0
+  for (let i = 1; i < strArr.length; i++) {
+    if (stack.length === 0 ||
+        strArr[i] === '(' ||
+        strArr[stack[stack.length - 1]] === ')' // 防止 )( 这样的情况
+       ) 
+    {
+      stack.push(i)
+    } else {
+      stack.pop()
+      maxNum = i - (stack[stack.length - 1] || -1)
+    }
+  }
+  return maxNum
+}
+
 console.log(longestValidParentheses('()(())'))
 
