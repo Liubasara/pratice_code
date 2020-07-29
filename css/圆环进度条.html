@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- 参考链接：https://www.xiabingbao.com/css/2015/07/27/css3-animation-circle.html -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圆环进度条</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+    }
+    .wrapper {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+      height: 400px;
+      width: 400px;
+      background-color: lightblue;
+    }
+  </style>
+</head>
+<body>
+  <style>
+    .circle-wrapper {
+      position: relative;
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+    .left-wrapper {
+      position: relative;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .right-wrapper {
+      position: relative;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .left-circle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 200%;
+      height: 100%;
+      border: 20px solid red;
+      border-radius: 50%;
+      border-right: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      overflow: hidden;
+      transform: rotate(-45deg);
+      animation: leftcircle 3s linear infinite;
+    }
+    .right-circle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 200%;
+      height: 100%;
+      border: 20px solid red;
+      border-radius: 50%;
+      border-left: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      overflow: hidden;
+      transform: rotate(45deg);
+      animation: rightcircle 3s linear infinite;
+    }
+    @keyframes leftcircle {
+      0%, 50% {
+        transform: rotate(-225deg);
+      }
+      100% {
+        transform: rotate(-45deg);
+      }
+    }
+    @keyframes rightcircle {
+      0% {
+        transform: rotate(-135deg);
+      }
+      50%, 100% {
+        transform: rotate(45deg);
+      }
+    }
+  </style>
+  <div class="wrapper">
+    <!-- 正经代码 start -->
+    <div class="circle-wrapper">
+      <div class="left-wrapper">
+        <div class="left-circle"></div>
+      </div>
+      <div class="right-wrapper">
+        <div class="right-circle"></div>
+      </div>
+    </div>
+    <!-- 正经代码 end -->
+  </div>
+</body>
+</html>
