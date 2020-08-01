@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>display: none 性能测试</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.onload = function () {
+      var testDOM = document.createElement('div')
+      var wrapperDOM = document.createElement('div')
+      testDOM.appendChild(wrapperDOM)
+      for (let i = 0; i < 5; i++) {
+        wrapperDOM.innerHTML += `<div style="background: lightblue; height: 100px;">test</div>`
+      }
+      setTimeout(() => {
+        var dontNeedDOM = document.createElement('div')
+        var wrapperDOM2 = document.createElement('div')
+        dontNeedDOM.appendChild(wrapperDOM2)
+        for (let i = 0; i < 1900; i++) {
+          // opacity: 0 和 visibility: hidden 都会触发渲染
+          // wrapperDOM2.innerHTML += `<div style="opacity: 0; background: lightblue; height: 100px;">test</div>`
+          // display: none 则不会触发渲染
+          wrapperDOM2.innerHTML += `<div style="display: none; background: lightblue; height: 100px;">test</div>`
+        }
+        document.body.appendChild(dontNeedDOM.firstChild)
+      }, 0)
+      document.body.appendChild(testDOM.firstChild)
+      
+    }
+  </script>
+</body>
+</html>
