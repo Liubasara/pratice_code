@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多种三列布局测试</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    p {
+      margin: 10px 0;
+    }
+    .box-wrapper {
+      position: relative;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 参考资料：https://juejin.im/post/6844903720149483528 -->
+  <p>方式1：左右 absolute 布局<br>
+     优点：方便简单<br>
+     缺点：<br>
+     不太好控制内容区的最小宽度，需要外层 box-wrapper 来协助控制(calc最小宽度加上两边宽度)，直接设置的话内容区会直接穿过右边栏<br>
+     两边侧边栏的高度无法随内容区高度的变化而变化<br>
+     若父元素没有高度，那么子元素的高度也会因为浮动而无法撑开父容器
+  </p>
+  <div class="box-wrapper">
+    <div style="
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 150px;
+      min-height: 100%;
+      background: lightgray;
+    ">左侧边栏</div>
+    <div style="
+      background: lightgoldenrodyellow;
+      position: absolute;
+      left: 150px;
+      right: 150px;
+      min-height: 100%;
+    "
+    >内容区</div>
+    <div style="
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 150px;
+      min-height: 100%;
+      background: lightcoral;
+    ">右侧边栏</div>
+  </div>
+
+  <p>方式2：左右 float 中间自动撑开布局<br>
+            优点：方便简单<br>
+            缺点：与方式1一样，但高度撑开父容器方面可以用 clearfix 解决
+  </p>
+  <div class="box-wrapper">
+    <div style="
+      float: left;
+      height: 100%;
+      width: 150px;
+      background-color: lightgray;
+      min-height: 100%;
+    ">左边布局</div>
+    <div style="
+      float: left;
+      width: calc(100% - 300px);
+      background: lightgoldenrodyellow;
+      min-height: 100%;
+    ">内容区</div>
+    <div style="
+      float: right;
+      height: 100%;
+      width: 150px;
+      background: lightcoral;
+      min-height: 100%;
+    ">右边侧栏</div>
+  </div>
+
+  <p>方式3：table-cell 方式<br>
+     优点：左侧栏和右侧栏都能随着内容区的高度而进行伸缩，且能默认充满父元素<br>
+     缺点：可能用 table 布局会有一定的性能问题？(table元素的重排和重绘成本，要高于div元素 -- 阮一峰)
+  </p>
+  <div class="box-wrapper">
+    <div style="
+      display: table;
+      width: 100%;
+      height: 100%;"
+    >
+      <div style="
+        display: table-cell;
+        width: 150px;
+        background: lightgray;
+      ">左侧栏</div>
+      <div style="
+        display: table-cell;
+        background: lightgoldenrodyellow;
+      ">内容区</div>
+      <div style="
+        display: table-cell;
+        width: 150px;
+        background: lightcoral;
+      ">右侧栏</div>
+    </div>
+  </div>
+
+  <p>方式4：flex: 1 布局<br>
+     优点：方便，简单直接，大家都在用，两边侧边栏的高度可以随着内容区的高度而改变，子元素会默认占满并继承整个父元素的高度<br>
+  </p>
+  <div class="box-wrapper">
+    <div style="display: flex; min-height: 100%;">
+      <div style="
+        width: 150px;
+        min-height: 100%;
+        background: lightgray;
+      ">左侧栏</div>
+      <div style="
+        flex: 1;
+        min-height: 100%;
+        background: lightgoldenrodyellow;
+      ">内容区</div>
+      <div style="
+        width: 150px;
+        min-height: 100%;
+        background: lightcoral;
+      ">右侧栏</div>
+    </div>
+
+    <p>方式5: grid 布局<br>
+       优点: <br>
+       跟 flex 布局差不多，无需理解 flex:1 这样的复合属性，代码更少，可读性更好<br>
+       对内容区 min-width 的处理是最优秀的，table-cell 和 flex 布局在宽度不足且侧边栏没有设置 min-width 的情况下，都会先压缩左侧栏和右侧栏的宽度，然后再进行内容区 min-width 的处理，只有 grid 布局没有妥协，宽度不够直接就通知浏览器出横向进度条<br>
+       缺点: 兼容性不咋行
+    </p>
+    <div class="box-wrapper">
+      <div style="
+        display: grid;
+        min-height: 100%;
+        grid-template-columns: 150px auto 150px;
+      ">
+      <div style="
+        background: lightgray;
+      "
+      >左侧栏</div>
+      <div style="
+        background: lightgoldenrodyellow;
+      "
+      >内容区</div>
+      <div style="
+        background: lightcoral;
+      "
+      >右侧栏</div>  
+    </div>
+    </div>
+    
+
+    <p style="text-align: center;margin-top: 30px;font-weight: bold; font-size: 20px;">
+      结论：2020 年了就别在意那点性能了，直接上 table-cell/flex/grid 布局吧
+    </p>
+  </div>
+</body>
+</html>
