@@ -23,7 +23,13 @@
   </style>
 </head>
 <body>
-  <!-- 参考资料：https://juejin.im/post/6844903720149483528 -->
+  <!-- 参考资料
+       
+       - https://juejin.im/post/6844903720149483528
+       
+       - https://segmentfault.com/a/1190000021533921
+  
+  -->
   <p>方式1：左右 absolute 布局<br>
      优点：方便简单<br>
      缺点：<br>
@@ -60,7 +66,7 @@
     ">右侧边栏</div>
   </div>
 
-  <p>方式2：左右 float 中间自动撑开布局<br>
+  <p>方式2：左右 float 中间自动撑开布局（又称为圣杯布局）<br>
             优点：方便简单<br>
             缺点：与方式1一样，但高度撑开父容器方面可以用 clearfix 解决
   </p>
@@ -85,6 +91,39 @@
       background: lightcoral;
       min-height: 100%;
     ">右边侧栏</div>
+  </div>
+
+  <p>方式2.1：左右 float 中间自动撑开布局（又称为双飞翼布局）<br>
+             优点：一种特殊的布局，利用负 margin 值做成的侧边栏（margin 和 padding 的百分数值都是按照父元素的宽度计算的），兼容性强，且内容区的背景色可自动覆盖侧边栏剩余的位置<br>
+             缺点：代码可读性差，且依旧存在方式2的种种缺点
+  </p>
+  <div class="box-wrapper">
+    <div style="
+      float: left;
+      background: lightgoldenrodyellow;
+      width: 100%;
+      min-height: 100%;
+    "
+    >
+      <div style="
+        margin: 0 150px;
+      ">内容区</div>
+    </div>
+    <div style="
+      float: left;
+      width: 150px;
+      min-height: 400px;
+      margin-left: -100%;
+      background: lightgray;
+    "
+    >左侧边栏</div>
+    <div style="
+      float: left;
+      width: 150px;
+      min-height: 400px;
+      margin-left: -150px;
+      background: lightcoral;
+    ">右侧边栏</div>
   </div>
 
   <p>方式3：table-cell 方式<br>
