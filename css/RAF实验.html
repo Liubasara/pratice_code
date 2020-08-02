@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>display: none 性能测试</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    .animation, .animation-2 {
+      height: 100px;
+      width: 0px;
+      background: lightblue;
+    }
+  </style>
+</head>
+<body>
+  <div class="animation"></div>
+  <div class="animation-2" style="margin-top: 20px;"></div>
+  <script>
+    /**
+     * 参考资料：https://juejin.im/post/6844904056457003015#heading-6
+     * animation frame request callback list 中所有的回调函数，将会在一次任务内全部执行（相当于微任务执行形式的宏任务）
+     * 意味着同步的多次调用 requestAnimationFrame，将会在下一次渲染前的一次任务内按顺序全部执行。
+     * 
+     * event loop 中在多个 task queue 之间优先级不一致中，每个 task 拥有一个 task source 属性，决定了 task 归属到哪个 task queque
+     * 而 task queque 拥有不同的执行优先级，显然由 animation frame request callback list 非空而创建的任务优先级是要高于 timer 的。
+     * **/
+    window.onload = function () {
+      let div1 = document.querySelector('.animation')
+      let div2 = document.querySelector('.animation-2')
+      function updateDiv1 () {
+        let width = div1.style.width
+        if (!width) {
+          div1.style.width = '1%'
+        } else {
+          width = (div1.style.width = +width.split('%')[0] + 1 + '%')
+        }
+        if (width !== '100%') {
+          requestAnimationFrame(updateDiv1)
+        }
+      }
+      function updateDiv2 () {
+        let width = div2.style.width
+        if (!width) {
+          div2.style.width = '1%'
+        } else {
+          width = (div2.style.width = +width.split('%')[0] + 1 + '%')
+        }
+        if (width !== '100%') {
+          requestAnimationFrame(updateDiv2)
+        }
+      }
+      requestAnimationFrame(updateDiv1)
+      requestAnimationFrame(updateDiv2)
+    }
+  </script>
+</body>
+</html>
