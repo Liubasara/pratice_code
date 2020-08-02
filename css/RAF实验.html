@@ -13,7 +13,7 @@
     html, body {
       height: 100%;
     }
-    .animation, .animation-2 {
+    .animation, .animation-2, .animation-settimeout {
       height: 100px;
       width: 0px;
       background: lightblue;
@@ -23,6 +23,7 @@
 <body>
   <div class="animation"></div>
   <div class="animation-2" style="margin-top: 20px;"></div>
+  <div class="animation-settimeout" style="margin-top: 20px;"></div>
   <script>
     /**
      * 参考资料：https://juejin.im/post/6844904056457003015#heading-6
@@ -35,6 +36,7 @@
     window.onload = function () {
       let div1 = document.querySelector('.animation')
       let div2 = document.querySelector('.animation-2')
+      let div3 = document.querySelector('.animation-settimeout')
       function updateDiv1 () {
         let width = div1.style.width
         if (!width) {
@@ -44,6 +46,8 @@
         }
         if (width !== '100%') {
           requestAnimationFrame(updateDiv1)
+        } else {
+          console.log('动画一完成：', new Date().getTime())
         }
       }
       function updateDiv2 () {
@@ -55,10 +59,37 @@
         }
         if (width !== '100%') {
           requestAnimationFrame(updateDiv2)
+        } else {
+          console.log('动画二完成：', new Date().getTime())
         }
       }
+      setTimeout(function paintDivAnimate () {
+        let width = div3.style.width
+        if (!width) {
+          div3.style.width = '1%'
+        } else {
+          width = (div3.style.width = +width.split('%')[0] + 1 + '%')
+        }
+        if (width !== '100%') {
+          setTimeout(paintDivAnimate, 16)
+        } else {
+          console.log('动画 setTimeout 完成：', new Date().getTime())
+        }
+      }, 16) // 浏览器以每秒 60HZ 运行动画，所以至少要 1000ms/60 = 16 ms执行一次刷新任务才能达到 60 帧的效果
       requestAnimationFrame(updateDiv1)
       requestAnimationFrame(updateDiv2)
+      // 耗时操作，添加耗时操作之前，动画完成的速度为 3-1-2(且 1 与 2 同时启动，证明会同时执行所有的 RAF)
+      // 添加耗时操作后，动画完成速度为 1-2-3(且 RAF 的任务没有阻塞，3 的任务在执行了一次以后就阻塞了很久)
+      // 足以证明同为宏任务，RAF 的执行优先度比 timer 更高
+      var testDOM = document.createElement('div')
+      var wrapperDOM = document.createElement('div')
+      testDOM.appendChild(wrapperDOM)
+      for (let i = 0; i < 2000; i++) {
+        // 不停塞入宏任务
+        setTimeout(() => {
+          wrapperDOM.innerHTML += `<div style="background: lightblue; height: 100px;">test</div>`
+        }, 16)
+      }
     }
   </script>
 </body>
