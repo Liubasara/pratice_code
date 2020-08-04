@@ -93,3 +93,35 @@ new Quene()
     console.log(3)
   })
   .start()
+  
+// 3. 实现打印 red，停 1s，打印 yellow，停 2s，打印 blue，停 3s，循环 5 次
+function solution () {
+  let printRed = () => new Promise(resolve => {
+    setTimeout(() => {
+      resolve(console.log('red'))
+    }, 1000)
+  })
+
+  let printYellow = () => new Promise(resolve => {
+    setTimeout(() => {
+      resolve(console.log('yellow'))
+    }, 2000)
+  })
+
+  let printBlue = () => new Promise(resolve => {
+    setTimeout(() => {
+      resolve(console.log('blue'))
+    }, 3000)
+  })
+
+  async function fn () {
+    let taskQueue = [printRed, printYellow, printBlue]
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 3; j++) {
+        await taskQueue[j]()
+      }
+    }
+  }
+  fn()
+}
+solution()
