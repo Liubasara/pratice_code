@@ -59,8 +59,12 @@ class MyPromise {
         // 只有使用setTimeout异步执行才能把myPromise2传出去，不然myPromise2就是undefined
         setTimeout(() => {
           let x = onFulFilled(this.value)
-          // 你当然可以直接这样做，不过为了装逼(误)和更好的利用Promise，我们对这个值进行通用的递归判断，拿到一个最终的value值(对，其实下面那个递归函数就是调用then函数不停地生成Promise，最终目的就是把最终调用resolve函数的Promise的this.value值拿出来)
-          // resolve(x)
+          // 你当然可以直接这样做，不过为了装逼(误)和更好的利用Promise以及判断循环调用的情况，我们对这个值进行通用的递归判断，拿到一个最终的value值(对，其实下面那个递归函数就是调用then函数不停地生成Promise，最终目的就是把最终调用resolve函数的Promise的this.value值拿出来)
+          // if (x instanceof MyPromise) {
+          //   x.then(resolve, reject)
+          // } else {
+          //   resolve(x)
+          // }
           resolvePromise(myPromise2, x, resolve, reject)
         }, 0)
       }
