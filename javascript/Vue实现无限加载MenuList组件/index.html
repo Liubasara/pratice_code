@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue实现无限加载menu组件</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+</head>
+<body>
+  <script type="text/x-template" id="menu">
+    <div>
+      <div v-for="(item, index) in listData" :key="index">
+        <span>{{item.content}}</span>
+        <div v-if="item.children.length > 0" style="margin-left: 10px;">
+          <menu-list :list-data="item.children"></menu-list>
+        </div>
+      </div>
+    </div>
+  </script>
+  <script>
+    Vue.component('menu-list', {
+      template: '#menu',
+      data () {
+        return {
+          ha: 'hahaha'
+        }
+      },
+      props: {
+        listData: {
+          type: Array,
+          default: () => []
+        }
+      }
+    })
+  </script>
+
+  <div id="app">
+    <menu-list :list-data="listData"></menu-list>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          listData: [
+            {
+              content: '1',
+              children: [
+                {
+                  content: '1-1',
+                  children: [
+                    {
+                      content: '1-1-1',
+                      children: []
+                    },
+                    {
+                      content: '1-1-2',
+                      children: []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    })
+  </script>
+
+
+</body>
+</html>
