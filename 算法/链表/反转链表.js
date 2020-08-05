@@ -48,3 +48,22 @@ while (reverseFirstNode) {
   console.log(reverseFirstNode.val)
   reverseFirstNode = reverseFirstNode.next
 }
+
+/**
+  非递归反转链表
+**/
+function traverseReverseChain (node) {
+  const stack = []
+  let tmp = node
+  while (!!tmp) {
+    stack.push(tmp)
+    tmp = tmp.next
+  }
+  const newFirstNode = stack[stack.length - 1]
+  while (stack.length > 0) {
+    const lastNode = stack.pop()
+    lastNode.next = stack[stack.length - 1]
+  }
+  node.next = null
+  return newFirstNode
+}
