@@ -9,10 +9,10 @@
 <body>
   <script type="text/x-template" id="menu">
     <div>
-      <div v-for="(item, index) in listData" :key="index">
-        <span>{{item.content}}</span>
-        <div v-if="item.children.length > 0" style="margin-left: 10px;">
-          <menu-list :list-data="item.children"></menu-list>
+      <div v-for="(item, index) in myList" :key="index">
+        <span @click="handleMenuOnclick(item, index)" style="cursor: pointer;">{{item.content}}</span>
+        <div v-if="item.children.length > 0" v-show="item.showChild" style="margin-left: 10px;">
+          <menu-list :list-data.sync="item.children"></menu-list>
         </div>
       </div>
     </div>
@@ -20,9 +20,14 @@
   <script>
     Vue.component('menu-list', {
       template: '#menu',
-      data () {
-        return {
-          ha: 'hahaha'
+      computed: {
+        myList: {
+          get () {
+            return this.listData
+          },
+          set () {
+            this.$emit('update:myList', this.listData)
+          }
         }
       },
       props: {
@@ -30,12 +35,18 @@
           type: Array,
           default: () => []
         }
+      },
+      methods: {
+        handleMenuOnclick (item, index) {
+          const data = {...item, showChild: item.showChild ? !item.showChild : true}
+          this.$set(this.myList, index, data)
+        }
       }
     })
   </script>
 
   <div id="app">
-    <menu-list :list-data="listData"></menu-list>
+    <menu-list :list-data.sync="listData"></menu-list>
   </div>
 
   <script>
