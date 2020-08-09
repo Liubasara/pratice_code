@@ -4,11 +4,17 @@
   "description": "上报工具demo",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "set NODE_ENV=production&&webpack --mode=production"
   },
   "dependencies": {
     "express": "4.17.1"
   },
   "author": "liubasara",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  }
 }
