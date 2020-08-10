@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自定义select框</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <style>
+    .select-box {
+      width: 130px;
+    }
+    .select-ul {
+      border: 1px solid gray;
+    }
+    .unvisible-select-ul {
+      display: none;
+    }
+    .selected {
+      background-color: lightcoral;
+      color: lightblue;
+    }
+  </style>
+  <div class="select-box">
+    <input id="select-input" type="text" value="请下拉进行选择" readonly>
+    <ul class="select-ul unvisible-select-ul">
+      <li class="selected">请下拉进行选择</li>
+      <li>选项一</li>
+      <li>选项二</li>
+      <li>选项三</li>
+    </ul>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      const selectBox = document.querySelector('.select-box')
+      const input = document.querySelector('#select-input')
+      const ul = document.querySelector('.select-ul')
+      input.addEventListener('click', function () {
+        if (ul.classList.contains('unvisible-select-ul')) {
+          ul.classList.remove('unvisible-select-ul')
+        } else {
+          ul.classList.add('unvisible-select-ul')
+        }
+      })
+      selectBox.addEventListener('click', function (e) {
+        if (e.target.tagName === 'LI') {
+          input.value = e.target.innerText
+          ul.classList.add('unvisible-select-ul')
+          document.querySelectorAll('li').forEach(item => {
+            item.classList.remove('selected')
+          })
+          e.target.classList.add('selected')
+        }
+      })
+      window.addEventListener('click', function (e) {
+        if (e.target !== input && e.target.tagName !== 'LI') {
+          ul.classList.add('unvisible-select-ul')
+        }
+      })
+    })
+  </script>
+</body>
+</html>
