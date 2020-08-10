@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 参考资料：
+        - https://www.jb51.net/article/75506.htm
+      
+      数学小 TIPS：要从一个数字中取得制定位数的数字公式：Math.floor(num / (各进制相乘)) % 当前位数进制
+                  如从 21 取到十位数 2，就是 Math.floor(21 / (10 * 1)) % 10
+  -->
+  <title>仿淘宝实现前端倒计时</title>
+</head>
+<body>
+  <div id="intervalTime"></div>
+</body>
+<script>
+  const TIMING = 1 // 定义倒计时天数
+  let startTime = new Date().getTime()
+  let EndTime = startTime + TIMING * 24 * 60 * 60 * 1000
+  function clock () {
+    let lastTime = EndTime - new Date().getTime()
+    let day = Math.floor(lastTime / (24 * 60 * 60 * 1000))
+    let hour = Math.floor(lastTime / (60 * 60 * 1000)) % 24
+    let min = Math.floor(lastTime / (60 * 1000)) % 60
+    let sec = Math.floor(lastTime / 1000) % 60
+    document.querySelector('#intervalTime').innerHTML = 
+      `<p>距离倒计时结束还剩余${day}天${hour}时${min}分${sec}秒</p>`
+  }
+  window.onload = function (e) {
+    clock()
+    setInterval(clock, 1000)
+  }
+</script>
+</html>
