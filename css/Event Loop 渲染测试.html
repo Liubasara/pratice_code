@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Loop 渲染测试</title>
+</head>
+<body>
+  <style>
+    .test1 {
+      height: 100px;
+      background-color: lightblue;
+    }
+    .test2 {
+      margin-top: 20px;
+      background-color: lightblue;
+      height: 200px;
+    }
+  </style>
+  <div class="test1"></div>
+  <div class="test2"></div>
+  <script>
+    window.onload = function () {
+      const test1DIV = document.querySelector('.test1')
+      const test2DIV = document.querySelector('.test2')
+
+      Promise.resolve().then(() => {
+        return new Promise(resolve => {
+          test1DIV.style.backgroundColor = 'red'
+          let startTime = new Date().getTime()
+          // while (new Date().getTime() - startTime < 2000) {
+            
+          // }
+          resolve()
+        })
+      }).then(() => {
+        test1DIV.style.backgroundColor = 'green'
+      })
+
+      setTimeout(function () {
+        test2DIV.style.backgroundColor = 'red'
+          // let startTime = new Date().getTime()
+          // while (new Date().getTime() - startTime < 2000) {
+
+          // }
+        setTimeout(() => {
+          test2DIV.style.backgroundColor = 'green'
+        }, 0)
+      }, 0)
+    }
+  </script>
+</body>
+</html>
