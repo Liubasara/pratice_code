@@ -15,18 +15,26 @@ function search (nums, target) {
   /**
    * 对于这类问题，需要先通过二分查找找到旋转点，再从剩余的两个数组中选一个进行二分查找
    */
+  function justUseNormalSearch () {
+    return nums.indexOf(target)
+  }
   const len = nums.length
   let start = 0
   let end = len - 1
   let splitPointIndex = Math.floor((end - start) / 2 + start)
+  if (nums[splitPointIndex] === nums[start]) {
+    // 特殊情况，无法根据 start 和 middle 的比较来找到旋转点
+    // 只能重新使用时间复杂度为 O(N) 的算法来进行查找
+    return justUseNormalSearch()
+  }
   while (start <= end) {
     // 先通过二分查找找到旋转点
     if (nums[splitPointIndex] > nums[splitPointIndex + 1]) break
     if (nums[splitPointIndex] < nums[start]) {
-      end = splitPointIndex
+      end = splitPointIndex - 1
       splitPointIndex = Math.floor((end - start) / 2 + start)
     } else {
-      start = splitPointIndex
+      start = splitPointIndex + 1
       splitPointIndex = Math.floor((end - start) / 2 + start)
     }
   }
@@ -52,4 +60,6 @@ function search (nums, target) {
   }
 }
 
-console.log(search([40, 50, 100, 1, 2, 3, 4, 5, 7, 8, 9, 20], 20))
+console.log(search([20, 0, 0, 5, 6, 7, 8], 0))
+// 特殊情况，无法根据 start 和 middle 的比较来找到旋转点
+console.log(search([1, 0, 0, 1, 1, 1, 1], 1))
