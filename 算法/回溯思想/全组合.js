@@ -14,7 +14,7 @@
  * ]
  */
 
- /**
+ /** 讨巧回溯法 以坑位为基准进行回溯
  * @param {number} n
  * @param {number} k
  * @return {number[][]}
@@ -38,4 +38,35 @@ var combine = function(n, k) {
   return path
 }
 
-console.log(combine(4, 2))
+ /** 正儿八经回溯法 以数字取或不取为基准进行回溯
+ * @param {number} n
+ * @param {number} k
+ * @return {number[][]}
+ */
+var combine2 = function(n, k) {
+  const path = []
+  const cur = []
+  function dfs (nth) {
+    if (nth === n) {
+      if (cur.length === k) {
+        path.push([...cur])
+      }
+      return
+    }
+    let optionArr = [nth + 1, null]
+    for (let i = 0; i < 2; i++) {
+      const value = optionArr[i]
+      if (value) {
+        cur.push(value)
+      }
+      dfs(nth + 1)
+      if (value) {
+        cur.pop()
+      }
+    }
+  }
+  dfs(0)
+  return path
+}
+
+console.log(combine2(4, 2))

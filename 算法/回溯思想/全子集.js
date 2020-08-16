@@ -15,8 +15,9 @@
  *  []
  * ]
  */
+
 /**
- * 
+ * 讨巧回溯法，基于坑位
  * @param {Array<number>} nums 
  */
 function subsets (nums) {
@@ -32,6 +33,36 @@ function subsets (nums) {
     }
   }
   dfs(0)
+  return path
+}
+
+/**
+ * 正儿八经回溯法
+ * @param {number[]} nums 
+ */
+function subsets2 (nums) {
+  const path = []
+  const cur = []
+  const len = nums.length
+  function dfs (nth) {
+    // 回溯法判断返回条件应该为二叉树层数等于最后一层
+    if (nth === len) {
+      path.push([...cur])
+      return
+    }
+    let optionArr = [nums[nth], null] // 对于每一个数字而言，都有取和不取的选项
+    for (let i = 0; i < 2; i++) {
+      const value = optionArr[i]
+      if (value) {
+        cur.push(value)
+      }
+      dfs(nth + 1)
+      if (value) {
+        cur.pop()
+      }
+    }
+  }
+  dfs(0) // 从第零层开始
   return path
 }
 
