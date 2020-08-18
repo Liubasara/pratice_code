@@ -68,7 +68,17 @@ function cuttingRope2 (n) {
   }
   let split2Times = Math.floor((n - (split3Times * 3)) / 2)
   // PS: 由于 JavaScript 精度问题，使用 Math.pow 计算大数的时候会遇到精度丧失导致计算错误无法 AC 的问题
-  return (Math.pow(3, split3Times) * Math.pow(2, split2Times)) % 1000000007
+  // return (parseInt(Math.pow(3, split3Times)) * parseInt(Math.pow(2, split2Times))) % 1000000007
+  let sum = 1
+  while (split3Times > 0) {
+    sum = (sum * 3) % 1000000007
+    split3Times--
+  }
+  while (split2Times > 0) {
+    sum = (sum * 2) % 1000000007
+    split2Times--
+  }
+  return sum % 1000000007
 }
 
-console.log(cuttingRope(10))
+console.log(cuttingRope2(122))
