@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <style>
+    .wrapper {
+      position: relative;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+    .test-button {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      border-radius: 5px;
+      outline: none;
+    }
+    .button-after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 1px solid transparent;
+      border-radius: 50%;
+    }
+    .button-after.animation {
+      animation: click 3s ease forwards;
+    }
+    @keyframes click {
+      0% {
+        transform: scale(0);
+        border: 1px solid red;
+        opacity: 1;
+      }
+      50% {
+        transform: scale(2.5);
+        opacity: 0.8;
+      }
+      100% {
+        border-color: transparent;
+        opacity: 0;
+        transform: scale(2.5);
+      }
+    }
+  </style>
+  <div class="wrapper">
+    <button class="test-button" onclick="handleButtonClick()">
+      点击
+    </button>
+  </div>
+
+  <script>
+    function handleButtonClick () {
+      const testButton = document.querySelector('.test-button')
+      const animationEle = document.createElement('div')
+      animationEle.classList.add('button-after')
+      animationEle.classList.add('animation')
+      animationEle.addEventListener('animationend', (e) => {
+        requestAnimationFrame(() => {
+          e.target.parentElement.removeChild(e.target)
+        })
+      })
+      testButton.appendChild(animationEle)
+    }
+  </script>
+</body>
+</html>
