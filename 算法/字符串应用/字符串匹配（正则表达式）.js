@@ -1,17 +1,50 @@
 /**
- * 真题描述： 设计一个支持以下两种操作的数据结构：
- * void addWord(word)
- * bool search(word)
- * search(word) 可以搜索文字或正则表达式字符串，字符串只包含字母 . 或 a-z 。
- * . 可以表示任何一个字母。
+ * 剑指 Offer 19. 正则表达式匹配
+ * 请实现一个函数用来匹配包含'. '和'*'的正则表达式。模式中的字符'.'表示任意一个字符，而'*'表示它前面的字符可以出现任意次（含0次）。在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串"aaa"与模式"a.a"和"ab*ac*a"匹配，但与"aa.a"和"ab*a"均不匹配。
+ * 示例 1:
+ *  输入:
+ *  s = "aa"
+ *  p = "a"
+ *  输出: false
+ *  解释: "a" 无法匹配 "aa" 整个字符串。
  * 
- * 示例: addWord("bad")
- * addWord("dad")
- * addWord("mad")
- * search("pad") -> false
- * search("bad") -> true
- * search(".ad") -> true
- * search("b..") -> true
- * 说明:
- * 你可以假设所有单词都是由小写字母 a-z 组成的。
+ * 输入:
+ * s = "ab"
+ * p = ".*"
+ * 输出: true
+ * 解释: ".*" 表示可匹配零个或多个（'*'）任意字符（'.'）。
  */
+
+/**
+ * @param {string} s
+ * @param {string} p
+ * @return {boolean}
+ */
+function isMatch (s, p) {
+  if (s === '' && (p === '.' || p === '*' || p === '.*')) return true
+  if (!s || !p) return false
+  function matchCore (sIndex, pIndex) {
+    if (!s.substr(sIndex, sIndex + 1) && !p[pIndex]) return true // 模式和字符串都递归完毕，成功比配
+    if (s.substr(sIndex, sIndex + 1) && !p[pIndex]) return false // 字符还没匹配完，模式匹配完了，匹配失败
+    if (p[pIndex + 1] === '*') {
+      if (p[pIndex] === s[sIndex] || (p[pIndex] === '.' && s.substr(sIndex, sIndex + 1) !== '')) {
+        return matchCore(sIndex + 1, pIndex + 2) ||
+               matchCore(sIndex + 1, pIndex) ||
+               matchCore(sIndex, pIndex + 2)
+      } else {
+        return matchCore(sIndex, pIndex + 2)
+      }
+    }
+    if (s[sIndex] === p[pIndex] || (p[pIndex] === '.' && s.substr(sIndex, sIndex + 1) !== '')) {
+      return matchCore(sIndex + 1, pIndex + 1)
+    }
+    return false
+  }
+  return matchCore(0, 0)
+}
+
+console.log(isMatch("", '.')) // true
+console.log(isMatch('aa', 'a*a')) // true
+console.log(isMatch('a', 'ab*')) // true
+console.log(isMatch('ab', '.*c')) // false
+console.log(isMatch('ab', '.*')) // true
