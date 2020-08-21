@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  已登陆
+  <button onclick="logout()">退出</button>
+  <script>
+    function myAjax (options = { method: 'GET' }) {
+      return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest()
+        xhr.open(options.method || 'GET', options.url)
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              resolve(xhr.responseText)
+            } else {
+              reject(xhr)
+            }
+          }
+        }
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        if (options.method !== 'POST') {
+          xhr.send()
+        } else {
+          xhr.send(JSON.stringify(options.data))
+        }
+      })
+    }
+    function logout () {
+      myAjax({
+        url: '/logout',
+        method: 'GET'
+      }).then(() => {
+        location.reload()
+      })
+    }
+  </script>
+</body>
+</html>
