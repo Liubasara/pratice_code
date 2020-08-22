@@ -25,6 +25,7 @@ server.get('', function (req, res) {
       return
     } else {
       res.sendFile(path.resolve('src', './auth.html'))
+      return
     }
   }
   res.sendFile(path.resolve('src', './auth.html'))
@@ -78,8 +79,6 @@ server.post('/login', function (req, res) {
 })
 
 server.get('/logout', function (req, res) {
-  res.clearCookie('username')
-  res.clearCookie('token')
   const { username, token } = req.query
   ;(USER_LOGIN_TOKEN.indexOf(token) !== -1) && USER_LOGIN_TOKEN.splice(USER_LOGIN_TOKEN.indexOf(token), 1)
   res.sendStatus(200)
