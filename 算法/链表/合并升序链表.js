@@ -8,7 +8,7 @@ function ListNode(val) {
   this.next = null
 }
 
-function createNodeChainByList (arr) {
+function createNodeChainByList(arr) {
   if (!arr[0] && arr[0] !== 0) return
   let firstNode = new ListNode(arr[0])
   let tmpNode = firstNode
@@ -24,7 +24,7 @@ function createNodeChainByList (arr) {
  * @param {ListNode} headL2
  */
 ListNode.prototype.merge = function (headL2) {
-	let p1 = this
+  let p1 = this
   let p2 = headL2
   if (!p1 && !p2) {
     return p1
@@ -37,19 +37,19 @@ ListNode.prototype.merge = function (headL2) {
     let newLinkNode = new ListNode(p1.val)
     newLinkNode.next = p1.next
     p1.next = newLinkNode
-  	p1.val = p2.val
+    p1.val = p2.val
     p2 = p2.next
   }
   while (p1 && p2) {
     if (p1.next === null) break
-  	if (p1.next.val >= p2.val) {
-    	let tmp2 = p2
+    if (p1.next.val >= p2.val) {
+      let tmp2 = p2
       p2 = p2.next
       tmp2.next = p1.next
       p1.next = tmp2
       p1 = p1.next
     } else {
-    	p1 = p1.next
+      p1 = p1.next
     }
   }
   // 退出循环时 p1 的节点应该在最后一个不为空的节点
@@ -69,4 +69,38 @@ p1.merge(p2)
 while (p1) {
   console.log(p1.val)
   p1 = p1.next
+}
+
+/** 不修改原有链表做法
+* @param {ListNode} l1
+* @param {ListNode} l2
+* @return {ListNode}
+*/
+function mergeTwoLists2 (l1, l2) {
+  let newListNode = new ListNode()
+  let tmp0 = newListNode
+  let tmp1 = l1
+  let tmp2 = l2
+  while (tmp1 && tmp2) {
+    if (tmp1.val <= tmp2.val) {
+      tmp0.next = tmp1
+      tmp0 = tmp0.next
+      tmp1 = tmp1.next
+    } else {
+      tmp0.next = tmp2
+      tmp0 = tmp0.next
+      tmp2 = tmp2.next
+    }
+  }
+  while (tmp1) {
+    tmp0.next = tmp1
+    tmp0 = tmp0.next
+    tmp1 = tmp1.next
+  }
+  while (tmp2) {
+    tmp0.next = tmp2
+    tmp0 = tmp0.next
+    tmp2 = tmp2.next
+  }
+  return newListNode.next
 }
