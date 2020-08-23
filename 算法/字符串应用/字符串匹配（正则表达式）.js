@@ -21,8 +21,7 @@
  * @return {boolean}
  */
 function isMatch (s, p) {
-  if (s === '' && (p === '.' || p === '*' || p === '.*')) return true
-  if (!s || !p) return false
+  if (s === '' && (p === '*' || p === '.*')) return true
   function matchCore (sIndex, pIndex) {
     if (!s.substr(sIndex, sIndex + 1) && !p[pIndex]) return true // 模式和字符串都递归完毕，成功比配
     if (s.substr(sIndex, sIndex + 1) && !p[pIndex]) return false // 字符还没匹配完，模式匹配完了，匹配失败
@@ -43,8 +42,10 @@ function isMatch (s, p) {
   return matchCore(0, 0)
 }
 
-console.log(isMatch("", '.')) // true
+console.log(isMatch("", '.')) // false
 console.log(isMatch('aa', 'a*a')) // true
 console.log(isMatch('a', 'ab*')) // true
 console.log(isMatch('ab', '.*c')) // false
 console.log(isMatch('ab', '.*')) // true
+console.log(isMatch('', 'c*')) // true
+console.log(isMatch('', '')) // true
