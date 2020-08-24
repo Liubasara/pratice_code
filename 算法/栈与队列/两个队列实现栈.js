@@ -1,5 +1,6 @@
 var CStack = function() {
   // 只能使用 push 和 shift
+  // 两个队列交替充当入栈和出栈的角色
   this.queue1 = [] // 一个队列负责入栈
   this.queue2 = [] // 一个队列负责在出栈的时候保存剩余队列
 };
