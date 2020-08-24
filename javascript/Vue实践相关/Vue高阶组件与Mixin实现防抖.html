@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 
+    参考资料：
+
+    - [奇技淫巧 - Vue Mixins 高级组件 与 Vue HOC 高阶组件 实践](https://juejin.im/post/6844903751057145869)
+    - [Vue组件实现函数防抖](https://juejin.im/post/6844903752462237710)
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue高阶组件与Mixin实现防抖</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+</head>
+<body>
+
+  <!-- button 组件 -->
+
+  <script type="text/x-template" id="m-button">
+    <div>
+      <button v-bind="$attrs" @click="handleButtonClick">clickMeToConsole</button>
+    </div>
+  </script>
+  <script>
+    var mButtonConstructor = Vue.component('m-button', {
+      template: '#m-button',
+      methods: {
+        handleButtonClick (e) {
+          this.$emit('click', e)
+          this.$emit('other-fire', 123)
+        }
+      }
+    })
+  </script>
+
+  <!-- 防抖函数 -->
+
+  <script>
+    function debounce (func, wait = 1000) {
+      let timer
+      return function (...args) {
+        if (typeof timer !== 'undefined') clearTimeout(timer)
+        timer = setTimeout(() => {
+          func.apply(this, args)
+        }, wait)
+      }
+    }
+  </script>
+
+  <!-- 高阶组件 -->
+  <script>
+    Vue.component('hoc-debounce', {
+      /**
+       * 这里我使用了abstract: true来创建一个抽象组件。
+       * 我们常用的transition和keep-alive就是一个抽象组件。
+       * 抽象组件是无状态的，同样也是“不存在的”，它自己并不会被渲染为实际的DOM，而是直接返回以及操作它的子元素。
+       * **/
+      abstract: true,
+      props: {
+        time: {
+          type: Number,
+          default: 1000
+        },
+        events: {
+          type: Array,
+          default: () => []
+        }
+      },
+      render (h) {
+        const vnode = this.$slots.default[0]
+        this.events.forEach((eventKey, index) => {
+          const targetFunc = vnode.componentOptions.listeners[eventKey]
+          if (targetFunc) {
+            vnode.componentOptions.listeners[eventKey] = debounce(targetFunc)
+          }
+        })
+        return vnode
+      }
+    })
+  </script>
+
+  <!-- mixin -->
+  
+  <script>
+    var debounceMixinButtonConstructor = Vue.component('debounce-mixin-button', {
+      mixins: [mButtonConstructor],
+      mounted () {
+        this.$on('debounceButtonClick', debounce(this.debounceButtonClick))
+      },
+      methods: {
+        handleButtonClick () {
+          // 覆盖 mixin 中组件的方法
+          this.$emit('debounceButtonClick')
+        },
+        debounceButtonClick () {
+          // 防抖触发的方法
+          this.$emit('click')
+        }
+      },
+      beforeDestroy () {
+        this.$off('debounceButtonClick')
+      }
+    })
+  </script>
+
+  <!-- 页面 app -->
+
+  <div id="app">
+    <p>mixin方式实现的防抖 button：</p>
+    <p>使用mixins 来实现我们需求很简单，但也因此会有许多问题</p>
+    <ol>
+      <li>需要知道Button源码结构</li>
+      <li>带来了隐式依赖，如果mixins嵌套，会很难理解</li>
+    </ol>
+    <debounce-mixin-button @click="appClick"></debounce-mixin-button>
+    <p>HOC 高阶组件实现的防抖 button：</p>
+    <p>使用抽象组件的好处是提高了组件的通用性，不会因为组件的使用而污染DOM（添加并不想要的div标签等）、可以包裹任意的单一子元素，当然也有缺点，比如高阶组件写起来比较麻烦，而且需要关注多个子组件的情况，要么只含有一个 slot，如果含有多个</p>
+    <hoc-debounce :events="['click']">
+      <m-button @click="appClick" @other-fire="otherFire"></m-button>
+      <m-button @click="appClick" @other-fire="otherFire"></m-button>
+    </hoc-debounce>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data () {
+        return {}
+      },
+      methods: {
+        appClick () {
+          console.log('appClick')
+        },
+        otherFire (e) {
+          console.log('otherFire: ', e)
+        }
+      }
+    })
+  </script>
+
+
+</body>
+</html>
