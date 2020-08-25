@@ -27,7 +27,7 @@
       methods: {
         handleButtonClick (e) {
           this.$emit('click', e)
-          this.$emit('other-fire', 123)
+          this.$emit('other-fire', this.$parent)
         }
       }
     })
@@ -67,14 +67,17 @@
         }
       },
       render (h) {
-        const vnode = this.$slots.default[0]
-        this.events.forEach((eventKey, index) => {
-          const targetFunc = vnode.componentOptions.listeners[eventKey]
-          if (targetFunc) {
-            vnode.componentOptions.listeners[eventKey] = debounce(targetFunc)
-          }
+        console.log(this.$slots.default)
+        this.$slots.default.forEach(vnode => {
+          if (!(vnode.componentOptions && vnode.componentOptions.listeners)) return
+          this.events.forEach((eventKey, index) => {
+            const targetFunc = vnode.componentOptions.listeners[eventKey]
+            if (targetFunc) {
+              vnode.componentOptions.listeners[eventKey] = debounce(targetFunc)
+            }
+          })
         })
-        return vnode
+        return h('div', {}, this.$slots.default)
       }
     })
   </script>
@@ -114,8 +117,11 @@
     </ol>
     <debounce-mixin-button @click="appClick"></debounce-mixin-button>
     <p>HOC 高阶组件实现的防抖 button：</p>
-    <p>使用抽象组件的好处是提高了组件的通用性，不会因为组件的使用而污染DOM（添加并不想要的div标签等）、可以包裹任意的单一子元素，当然也有缺点，比如高阶组件写起来比较麻烦，而且需要关注多个子组件的情况，要么只含有一个 slot，如果含有多个</p>
+    <p>使用抽象组件的好处是提高了组件的通用性，不会因为组件的使用而污染DOM（添加并不想要的div标签等）、可以包裹任意的单一子元素</p>
+    <p>不过当然也有缺点，比如高阶组件写起来比较麻烦，而且需要关注多个子组件的情况，会对 DOM 结构造成破坏(Render 只能返回单结点嵌套多个结点的结构)</p>
     <hoc-debounce :events="['click']">
+      <m-button @click="appClick" @other-fire="otherFire"></m-button>
+      <m-button @click="appClick" @other-fire="otherFire"></m-button>
       <m-button @click="appClick" @other-fire="otherFire"></m-button>
       <m-button @click="appClick" @other-fire="otherFire"></m-button>
     </hoc-debounce>
@@ -132,7 +138,7 @@
           console.log('appClick')
         },
         otherFire (e) {
-          console.log('otherFire: ', e)
+          console.log('otherFire: parentElemIs ', e)
         }
       }
     })
