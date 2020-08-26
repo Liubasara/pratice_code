@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 
+    参考资料：
+
+    - [奇技淫巧 - Vue Mixins 高级组件 与 Vue HOC 高阶组件 实践](https://juejin.im/post/6844903751057145869)
+    - [Vue组件实现函数防抖](https://juejin.im/post/6844903752462237710)
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue高阶组件与Mixin实现防抖</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+</head>
+<body>
+
+  <script>
+    function mockGetData () {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            statusCode: 200,
+            metaInfo: 'success',
+            data: [
+              '蒸鸭羔',
+              '蒸熊爪',
+              '蒸鹿茸',
+              '红烧排骨'
+            ]
+          })
+        }, 1000)
+      })
+    }
+  </script>
+
+  <!-- 防抖函数 -->
+
+  <script>
+    function debounce (func, wait = 1000) {
+      let timer
+      return function (...args) {
+        if (typeof timer !== 'undefined') clearTimeout(timer)
+        timer = setTimeout(() => {
+          func.apply(this, args)
+        }, wait)
+      }
+    }
+  </script>
+
+  <!-- 搜索组件 -->
+  
+  <script type="text/x-template" id="common-search-input">
+    <div>
+      <input type="text" v-model="searchData">
+    </div>
+  </script>
+  <script>
+    var commonSearchInputConstructor = Vue.component('common-search-input', {
+      template: '#common-search-input',
+      created () {
+        this.$on('fetchSearchData', debounce(this.handleFetchData))
+      },
+      data () {
+        return {
+          searchData: ''
+        }
+      },
+      watch: {
+        searchData: {
+          immediate: false, // 是否在监听开始之后立即调用
+          deep: false, // 是否深层次监听每一层子属性的变化，类似于 Polymer 的 xxx.* 监听
+          handler (val, oldVal) {
+            this.$emit('fetchSearchData', val)
+          }
+        }
+      },
+      methods: {
+        handleFetchData (e) {
+          console.log(e)
+          console.log('searchData: ', this.searchData)
+        }
+      },
+      beforeDestory () {
+        this.$off('fetchSearchData')
+      }
+    })
+  </script>
+  
+  <!-- 页面 app -->
+
+  <div id="app">
+    <p>设计通用输入搜索组件，能够以列表展示返回结果，主要就防抖与请求竞态处理</p>
+    <common-search-input></common-search-input>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data () {
+        return {}
+      },
+      methods: {}
+    })
+  </script>
+
+
+</body>
+</html>
