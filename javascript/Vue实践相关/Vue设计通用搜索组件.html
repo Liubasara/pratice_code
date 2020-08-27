@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- 
-    参考资料：
-
-    - [奇技淫巧 - Vue Mixins 高级组件 与 Vue HOC 高阶组件 实践](https://juejin.im/post/6844903751057145869)
-    - [Vue组件实现函数防抖](https://juejin.im/post/6844903752462237710)
-  -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vue高阶组件与Mixin实现防抖</title>
+  <title>Vue设计通用搜索组件</title>
   <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
 </head>
 <body>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+  </style>
+
   <script>
-    function mockGetData () {
+    function mockGetData (search) {
       return new Promise(resolve => {
         setTimeout(() => {
           resolve({
             statusCode: 200,
             metaInfo: 'success',
-            data: [
-              '蒸鸭羔',
-              '蒸熊爪',
-              '蒸鹿茸',
-              '红烧排骨'
-            ]
+            data: (() => {
+              const data = [
+                '蒸鸭羔',
+                '蒸熊爪',
+                '蒸鹿茸',
+                '红烧排骨'
+              ]
+              return search ? data.filter(item => item.includes(search)) : data
+            })()
           })
-        }, 1000)
+        }, 500)
       })
     }
   </script>
@@ -50,34 +53,83 @@
   <!-- 搜索组件 -->
   
   <script type="text/x-template" id="common-search-input">
-    <div>
-      <input type="text" v-model="searchData">
+    <div style="width: 200px;">
+      <input type="text" v-model="searchData" style="width: 100%;">
+      <ul v-show="showListOrNot" style="margin: 0; padding: 0;width: 100%; border: 1px solid lightgray;">
+        <li v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">{{item}}</li>
+      </ul>
+      <div style="margin-top: 100px;" v-show="loading">加载中...</div>
     </div>
   </script>
   <script>
     var commonSearchInputConstructor = Vue.component('common-search-input', {
       template: '#common-search-input',
+      model: {
+        // 修改组件的 v-model，对外暴露属性为当前选择 currentSelect，监听事件为 updatePropModel
+        prop: 'currentSelect',
+        event: 'updatePropModel'
+      },
       created () {
+        // 监听防抖
         this.$on('fetchSearchData', debounce(this.handleFetchData))
+        // 若传入的值不为空，则对其进行设值触发 watcher 进行搜索；如果没有值，就以空值触发进行搜索
+        this.currentSelect ? (this.searchData = this.currentSelect) : this.$emit('fetchSearchData', this.searchData)       
       },
       data () {
         return {
-          searchData: ''
+          searchData: '',
+          listData: [],
+          loading: false
+        }
+      },
+      props: {
+        currentSelect: {
+          type: String,
+          default: ''
+        }
+      },
+      computed: {
+        showListOrNot () {
+          // 是否显示搜索列表
+          return this.currentSelect !== this.searchData || (this.currentSelect === '' && this.searchData === '')
+        },
+        myCurrentSelect: {
+          get () {
+            return this.currentSelect
+          },
+          set (val) {
+            this.$emit('updatePropModel', val)
+          }
         }
       },
       watch: {
         searchData: {
-          immediate: false, // 是否在监听开始之后立即调用
+          immediate: false, // 是否在监听开始之后立即调用，比 beforeCreate 比 created 钩子更先调用
           deep: false, // 是否深层次监听每一层子属性的变化，类似于 Polymer 的 xxx.* 监听
           handler (val, oldVal) {
+            if (
+              // (val && oldVal && oldVal.length > val.length && oldVal.includes(val) ) || // 对当前 search 进行删减, 则 select 置为空
+              // (val && oldVal && oldVal.length < val.length && val.includes(oldVal)) || // 对当前 search 进行添加, 也把 select 置为空
+              // oldVal && !val // 一次性全部删完，也置为空
+              val !== this.myCurrentSelect // 只要当前搜索项不等于选择的项目的时候，暴露出来的当前选择项都应该为空
+            ) {
+              this.myCurrentSelect = ''
+            }
             this.$emit('fetchSearchData', val)
           }
         }
       },
       methods: {
         handleFetchData (e) {
-          console.log(e)
-          console.log('searchData: ', this.searchData)
+          this.loading = true
+          mockGetData(e).then(res => {
+            this.loading = false
+            this.listData = res.data
+          })
+        },
+        handleItemClick (item) {
+          this.searchData = item
+          this.myCurrentSelect = item
         }
       },
       beforeDestory () {
@@ -90,14 +142,27 @@
 
   <div id="app">
     <p>设计通用输入搜索组件，能够以列表展示返回结果，主要就防抖与请求竞态处理</p>
-    <common-search-input></common-search-input>
+    <p>两个思路：</p>
+    <ol>
+      <li>防抖方面，利用 v-model 对 input 事件的监听重新设立一个新的防抖事件 fetchSearchData，用于对查询函数进行节流请求</li>
+      <li>列表回显方面则较为复杂，分为以下几个实现点：</li>
+      <ol>
+        <li>利用 v-model 修改组件监听的事件，暴露出的属性应该是当前选择的搜索项 currentSelect 而不是搜索的内容</li>
+        <li>对于当前搜索项的处理，只要当前搜索项不等于选择的项目的时候，暴露出来的当前选择项都应该为空</li>
+        <li>对于列表是否显示的条件是，只要当前搜索项等于搜索项且两者都不为空，则不显示列表</li>
+        <li>对于有搜索初始值的情况，由于 Vue 不推荐直接修改 props 值，所以要改为 computed 设值进行 emit 的方式</li>
+      </ol>
+    </ol>
+    <common-search-input v-model="searchInput"></common-search-input>
   </div>
 
   <script>
     new Vue({
       el: '#app',
       data () {
-        return {}
+        return {
+          searchInput: '红烧排骨'
+        }
       },
       methods: {}
     })
