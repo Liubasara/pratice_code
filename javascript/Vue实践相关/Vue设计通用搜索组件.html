@@ -54,7 +54,24 @@
   
   <script type="text/x-template" id="common-search-input">
     <div style="width: 200px;">
-      <input type="text" v-model="searchData" style="width: 100%;">
+      <template v-if="multi">
+        <div style="width: 100%; position: relative; padding: 5px; display: flex;border: 1px solid lightgray; align-items: flex-end;">
+          <div>
+            <div
+              v-for="(item, index) in multiSelected"
+              :key="index"
+              style="margin-bottom: 5px; padding: 5px; min-width: 50px; max-width: 100px; display: flex; align-items: flex-end; border-radius: 5px; word-break: break-word; background: lightgray; font-size: 12px;"
+            >
+              {{item}}
+              <span style="margin-left: 10px; cursor: pointer; user-select:none;" @click="spliceItemByIndex(index)">x</span>
+            </div>
+          </div>
+          <input type="text" v-model="searchData" style="flex: 1; outline: none; border: none; min-width: 0;">
+        </div>
+      </template>
+      <template v-else>
+        <input type="text" v-model="searchData" style="width: 100%;">
+      </template>
       <ul v-show="showListOrNot" style="margin: 0; padding: 0;width: 100%; border: 1px solid lightgray;">
         <li v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">{{item}}</li>
       </ul>
@@ -86,12 +103,27 @@
         currentSelect: {
           type: String,
           default: ''
+        },
+        multiSelected: {
+          type: Array,
+          default: () => []
+        },
+        multi: {
+          type: Boolean,
+          default: false
         }
       },
       computed: {
         showListOrNot () {
           // 是否显示搜索列表
-          return this.currentSelect !== this.searchData || (this.currentSelect === '' && this.searchData === '')
+          /**
+           * !this.multiSelected.includes(this.searchData)
+           * 多选情况下，一定需要选择一下才能将值放置入选择的数组里，所以需要判断当前选择是否已经在选择数组中
+           * 如不在，则需要显示让用户选择
+           * */
+          return this.multi ? 
+            !this.multiSelected.includes(this.searchData) :
+            this.currentSelect !== this.searchData || (this.currentSelect === '' && this.searchData === '')
         },
         myCurrentSelect: {
           get () {
@@ -130,6 +162,15 @@
         handleItemClick (item) {
           this.searchData = item
           this.myCurrentSelect = item
+          if (this.multi) {
+            if (!this.multiSelected.includes(item)) {
+              this.multiSelected.push(item)
+              this.searchData = ''
+            }
+          }
+        },
+        spliceItemByIndex (index) {
+          this.multiSelected.splice(index, 1)
         }
       },
       beforeDestory () {
@@ -151,9 +192,10 @@
         <li>对于当前搜索项的处理，只要当前搜索项不等于选择的项目的时候，暴露出来的当前选择项都应该为空</li>
         <li>对于列表是否显示的条件是，只要当前搜索项等于搜索项且两者都不为空，则不显示列表</li>
         <li>对于有搜索初始值的情况，由于 Vue 不推荐直接修改 props 值，所以要改为 computed 设值进行 emit 的方式</li>
+        <li>多选情况下则更为复杂一点，样式方面可参考 element-ui 中 select 的实现，逻辑方面则额外传入一个数组记录已选择的值，判断列表是否存在也要多加一个额外判断</li>
       </ol>
     </ol>
-    <common-search-input v-model="searchInput"></common-search-input>
+    <common-search-input v-model="searchInput" :multi-selected="searchMultiSelect" :multi="true"></common-search-input>
   </div>
 
   <script>
@@ -161,7 +203,8 @@
       el: '#app',
       data () {
         return {
-          searchInput: '红烧排骨'
+          searchInput: '红烧排骨',
+          searchMultiSelect: ['蒸鸭羔', '蒸熊掌']
         }
       },
       methods: {}
