@@ -1,74 +1,161 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vue实现无限加载menu组件</title>
-  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
-</head>
-<body>
-  <script type="text/x-template" id="menu">
-    <div>
-      <div v-for="(item, index) in listData" :key="index">
-        <span @click="handleMenuOnclick(item, index)" style="cursor: pointer;">{{item.content}}</span>
-        <div v-if="item.children.length > 0" v-show="item.showChild" style="margin-left: 10px;">
-          <menu-list :list-data="item.children"></menu-list>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue实现无限加载menu组件</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+  </head>
+  <body>
+    <!-- 
+    参考链接：[如何实现无限递归组件](https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)
+    
+    需求如下：
+      1. 每一层的菜单元素如果有 children 属性，这一项菜单被选中以后就要继续展示这一项的所有子菜单
+      2. 并且点击其中的任意一个层级，都需要把菜单的 完整的 id 链路 传递到最外层，给父组件请求数据用。
+      比如点击了 科学研究类。那么向外 emit 的时候还需要带上它的第一个子菜单 植物学与植物生理学 的 id，以及它的父级菜单 生命科学竞赛 的 id，也就是 [1, 7, 8]。
+      3. 每一层的样式还可以自己定制。
+      4. 要求这个组件能通过传入任意一个层级的 id 来默认展示高亮。
+   -->
+    <script type="text/x-template" id="menu">
+      <div>
+        <div v-for="(item, index) in listData" :key="index">
+          <span @click="handleMenuOnclick(item, index)" style="cursor: pointer;">
+            <input type="checkbox" :checked="item.checked" @click.self.stop="handleItemClick(item, index)">
+            {{item.content}}
+          </span>
+          <div v-if="item.children && item.children.length > 0" v-show="item.showChild" style="margin-left: 10px;">
+            <menu-list :list-data="item.children" @selectItem="handleSelectItem"></menu-list>
+          </div>
         </div>
       </div>
-    </div>
-  </script>
-  <script>
-    Vue.component('menu-list', {
-      template: '#menu',
-      props: {
-        listData: {
-          type: Array,
-          default: () => []
-        }
-      },
-      methods: {
-        handleMenuOnclick (item, index) {
-          const data = {...item, showChild: item.showChild ? !item.showChild : true}
-          this.$set(this.listData, index, data)
-        }
-      }
-    })
-  </script>
-
-  <div id="app">
-    <menu-list :list-data="listData"></menu-list>
-  </div>
-
-  <script>
-    new Vue({
-      el: '#app',
-      data () {
-        return {
-          listData: [
-            {
-              content: '1',
-              children: [
-                {
-                  content: '1-1',
-                  children: [
-                    {
-                      content: '1-1-1',
-                      children: []
-                    },
-                    {
-                      content: '1-1-2',
-                      children: []
-                    }
-                  ]
-                }
-              ]
+    </script>
+    <script>
+      Vue.component('menu-list', {
+        template: '#menu',
+        props: {
+          listData: {
+            type: Array,
+            default: () => [],
+          },
+        },
+        methods: {
+          handleMenuOnclick(item, index) {
+            const data = {
+              ...item,
+              showChild: item.showChild ? !item.showChild : true,
             }
-          ]
-        }
-      }
-    })
-  </script>
+            this.$set(this.listData, index, data)
+          },
+          handleItemClick (item, index) {
+            const checked = item.checked ? !item.checked : true
+            const data = {
+              ...item,
+              checked
+            }
+            if (data.children && data.children.length > 0) {
+              // 深度遍历进行给 checked 赋值
+              function dfs (data) {
+                if (!data) return
+                const len = data.children.length
+                for (let i = 0; i < len; i++) {
+                  // data.children[i].checked = checked
+                  Vue.set(data.children[i], 'checked', checked)
+                  if (data.children[i].children && data.children[i].children.length > 0) {
+                    dfs(data.children[i])
+                  }
+                }
+              }
+              dfs(data)
+            }
+            this.$emit('selectItem', data)
+            this.$set(this.listData, index, data)
+          },
+          handleSelectItem (item) {
+            for (let i = 0; i < this.listData.length; i++) {
+              if (this.listData[i].children && this.listData[i].children.findIndex(child => child.id === item.id) !== -1) {
+                if (
+                  !item.checked &&
+                  this.listData[i].children
+                    .filter(child => child.id !== item.id)
+                    .every(child => !child.checked)
+                ) {
+                  this.$set(this.listData[i], 'checked', false)
+                } else {
+                  this.$set(this.listData[i], 'checked', true)
+                }
+                this.$emit('selectItem', this.listData[i])
+              }
+            }
+          }
+        },
+      })
+    </script>
 
+    <div id="app">
+      <menu-list :list-data="listData"></menu-list>
+    </div>
 
-</body>
+    <script>
+      new Vue({
+        el: '#app',
+        data() {
+          return {
+            listData: [
+              {
+                id: 1,
+                father_id: 0,
+                status: 1,
+                content: '生命科学竞赛',
+                children: [
+                  {
+                    id: 2,
+                    father_id: 1,
+                    status: 1,
+                    content: '野外实习类',
+                    children: [
+                      { id: 3, father_id: 2, status: 1, content: '植物学' },
+                    ],
+                  },
+                  {
+                    id: 7,
+                    father_id: 1,
+                    status: 1,
+                    content: '科学研究类',
+                    children: [
+                      {
+                        id: 8,
+                        father_id: 7,
+                        status: 1,
+                        content: '植物学与植物生理学',
+                      },
+                      {
+                        id: 9,
+                        father_id: 7,
+                        status: 1,
+                        content: '动物学与动物生理学',
+                      },
+                      { id: 10, father_id: 7, status: 1, content: '微生物学' },
+                      { id: 11, father_id: 7, status: 1, content: '生态学' },
+                    ],
+                  },
+                  { id: 71, father_id: 1, status: 1, content: '添加' },
+                ],
+              },
+              {
+                id: 56,
+                father_id: 0,
+                status: 1,
+                content: '考研相关',
+                children: [
+                  { id: 57, father_id: 56, status: 1, content: '政治' },
+                  { id: 58, father_id: 56, status: 1, content: '外国语' },
+                ],
+              },
+            ]
+          }
+        },
+      })
+    </script>
+  </body>
 </html>
