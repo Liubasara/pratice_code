@@ -7,16 +7,6 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
   </head>
   <body>
-    <!-- 
-    参考链接：[如何实现无限递归组件](https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)
-    
-    需求如下：
-      1. 每一层的菜单元素如果有 children 属性，这一项菜单被选中以后就要继续展示这一项的所有子菜单
-      2. 并且点击其中的任意一个层级，都需要把菜单的 完整的 id 链路 传递到最外层，给父组件请求数据用。
-      比如点击了 科学研究类。那么向外 emit 的时候还需要带上它的第一个子菜单 植物学与植物生理学 的 id，以及它的父级菜单 生命科学竞赛 的 id，也就是 [1, 7, 8]。
-      3. 每一层的样式还可以自己定制。
-      4. 要求这个组件能通过传入任意一个层级的 id 来默认展示高亮。
-   -->
     <script type="text/x-template" id="menu">
       <div>
         <div v-for="(item, index) in listData" :key="index">
@@ -25,7 +15,7 @@
             {{item.content}}
           </span>
           <div v-if="item.children && item.children.length > 0" v-show="item.showChild" style="margin-left: 10px;">
-            <menu-list :list-data="item.children" @selectItem="handleSelectItem"></menu-list>
+            <menu-list :list-data="item.children" :selected-ids.sync="mySelectedIds" :selected-item-list="selectedItemList" @selectItem="handleSelectItem"></menu-list>
           </div>
         </div>
       </div>
@@ -33,11 +23,58 @@
     <script>
       Vue.component('menu-list', {
         template: '#menu',
+        created () {
+          if (this.selectedIds.length > 0) {
+            const dfs = function dfs (obj) {
+              // 对当前数据进行深度优先遍历，高亮当前选择的 id
+              if (!obj) return
+              if (this.selectedIds.indexOf(obj.id) !== -1) {
+                Vue.set(obj, 'checked', true)
+                this.handleSelectedItemList(obj)
+              }
+              if (obj.children && obj.children.length > 0) {
+                const len = obj.children.length
+                for (let i = 0; i < len; i++) {
+                  dfs.call(this, obj.children[i])
+                }
+              }
+            }
+            const len = this.listData.length
+            if (len > 0) {
+              for (let i = 0; i < len; i++) {
+                dfs.call(this, this.listData[i])
+              }
+            }
+          }
+        },
         props: {
           listData: {
             type: Array,
             default: () => [],
           },
+          selectedItemList: {
+            type: Array,
+            default: () => []
+          },
+          selectedIds: {
+            type: Array,
+            default: () => []
+          }
+        },
+        computed: {
+          mySelectedIds: {
+            get () {
+              return this.selectedIds
+            },
+            set (val) {
+              this.$emit('update:selectedIds', val)
+            }
+          }
+        },
+        watch: {
+          selectedItemList (val, oldVal) {
+            this.mySelectedIds = val.map(item => item.id)
+          }
         },
         methods: {
           handleMenuOnclick(item, index) {
@@ -53,6 +90,7 @@
               ...item,
               checked
             }
+            this.handleSelectedItemList(data)
             if (data.children && data.children.length > 0) {
               // 深度遍历进行给 checked 赋值
               function dfs (data) {
@@ -61,12 +99,13 @@
                 for (let i = 0; i < len; i++) {
                   // data.children[i].checked = checked
                   Vue.set(data.children[i], 'checked', checked)
+                  this.handleSelectedItemList(data.children[i])
                   if (data.children[i].children && data.children[i].children.length > 0) {
-                    dfs(data.children[i])
+                    dfs.call(this, data.children[i])
                   }
                 }
               }
-              dfs(data)
+              dfs.call(this, data)
             }
             this.$emit('selectItem', data)
             this.$set(this.listData, index, data)
@@ -84,8 +123,17 @@
                 } else {
                   this.$set(this.listData[i], 'checked', true)
                 }
+                this.handleSelectedItemList(this.listData[i])
                 this.$emit('selectItem', this.listData[i])
               }
+            }
+          },
+          handleSelectedItemList (item) {
+            const selectedItemIndex = this.selectedItemList.findIndex(child => child.id === item.id)
+            if (item.checked) {
+              selectedItemIndex === -1 && this.selectedItemList.push(item)
+            } else {
+              selectedItemIndex !== -1 && this.selectedItemList.splice(selectedItemIndex, 1)
             }
           }
         },
@@ -93,7 +141,19 @@
     </script>
 
     <div id="app">
-      <menu-list :list-data="listData"></menu-list>
+      <p>参考链接：[如何实现无限递归组件](https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)</p>
+      <p>需求如下：</p>
+      <ol>
+        <li>每一层的菜单元素如果有 children 属性，这一项菜单被选中以后就要继续展示这一项的所有子菜单</li>
+        <li>
+          并且点击其中的任意一个层级，都需要把菜单的 完整的 id 链路 传递到最外层，给父组件请求数据用。
+          比如点击了 科学研究类。那么向外 emit 的时候还需要带上它的第一个子菜单 植物学与植物生理学 的 id，以及它的父级菜单 生命科学竞赛 的 id，
+          也就是 [1, 7, 8]。
+        </li>
+        <li>要求这个组件能通过传入任意一个层级的 id 来默认展示高亮。</li>
+        <li>加分项：每一层的样式还可以自己定制。</li>
+      </ol>
+      <menu-list :selected-ids.sync="selectedIds"  :list-data="listData"></menu-list>
     </div>
 
     <script>
@@ -101,6 +161,7 @@
         el: '#app',
         data() {
           return {
+            selectedIds: [1, 9, 7, 56, 57],
             listData: [
               {
                 id: 1,
