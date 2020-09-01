@@ -9,7 +9,7 @@
   <body>
     <script type="text/x-template" id="menu">
       <div>
-        <div v-for="(item, index) in listData" :key="index">
+        <div v-for="(item, index) in listData" :key="index" :style="item.style && item.style">
           <span @click="handleMenuOnclick(item, index)" style="cursor: pointer;">
             <input type="checkbox" :checked="item.checked" @click.self.stop="handleItemClick(item, index)">
             {{item.content}}
@@ -141,7 +141,7 @@
     </script>
 
     <div id="app">
-      <p>参考链接：[如何实现无限递归组件](https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)</p>
+      <p>参考链接：[如何实现无限递归组件]<a href="https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A" target="_blank">(https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)</a></p>
       <p>需求如下：</p>
       <ol>
         <li>每一层的菜单元素如果有 children 属性，这一项菜单被选中以后就要继续展示这一项的所有子菜单</li>
@@ -153,7 +153,7 @@
         <li>要求这个组件能通过传入任意一个层级的 id 来默认展示高亮。</li>
         <li>加分项：每一层的样式还可以自己定制。</li>
       </ol>
-      <menu-list :selected-ids.sync="selectedIds"  :list-data="listData"></menu-list>
+      <menu-list :selected-ids.sync="selectedIds" :selected-item-list="selectedItems"  :list-data="listData"></menu-list>
     </div>
 
     <script>
@@ -162,12 +162,14 @@
         data() {
           return {
             selectedIds: [1, 9, 7, 56, 57],
+            selectedItems: [],
             listData: [
               {
                 id: 1,
                 father_id: 0,
                 status: 1,
                 content: '生命科学竞赛',
+                style: 'background: lightgray;',
                 children: [
                   {
                     id: 2,
@@ -208,9 +210,11 @@
                 father_id: 0,
                 status: 1,
                 content: '考研相关',
+                style: 'background: lightgray;',
+                showChild: true,
                 children: [
-                  { id: 57, father_id: 56, status: 1, content: '政治' },
-                  { id: 58, father_id: 56, status: 1, content: '外国语' },
+                  { id: 57, father_id: 56, status: 1, content: '政治', style: 'background: lightcoral; width: 80%;' },
+                  { id: 58, father_id: 56, status: 1, content: '外国语', style: 'background: lightcoral; width: 80%;' },
                 ],
               },
             ]
