@@ -61,6 +61,15 @@
           selectedItem: null
         }
       },
+      watch: {
+        menuData: {
+          immediate: false,
+          deep: false,
+          handler (val, oldVal) {
+            this.selectedItem = null
+          }
+        }
+      },
       methods: {
         handleMenuClick (item, index) {
           this.selectedItem = item
