@@ -35,7 +35,13 @@
         </div>
       </div>
       <div v-if="selectedItem && selectedItem.children && selectedItem.children.length > 0">
-        <menu-nav :menu-data="selectedItem.children" :menu-depth-style-list="menuDepthStyleList" :depth="depth + 1"></menu-nav>
+        <menu-nav
+          :selected-ids="selectedIds"
+          :menu-data="selectedItem.children"
+          :menu-depth-style-list="menuDepthStyleList"
+          :depth="depth + 1"
+          @select-menu="handleSelectMenu"
+        ></menu-nav>
       </div>
     </div>
   </script>
@@ -54,6 +60,10 @@
         depth: {
           type: Number,
           default: 0
+        },
+        selectedIds: {
+          type: Array,
+          default: () => []
         }
       },
       data () {
@@ -66,13 +76,47 @@
           immediate: false,
           deep: false,
           handler (val, oldVal) {
+            function dfs (list) {
+              const len = list.length
+              for (let i = 0; i < len; i++) {
+                const index = this.selectedIds.findIndex(child => child === list[i].id)
+                index !== -1 && this.selectedIds.splice(index, 1)
+                if (list[i].children) {
+                  dfs.call(this, list[i].children)
+                }
+              }
+            }
+            dfs.call(this, oldVal)
             this.selectedItem = null
+          }
+        },
+        selectedItem: {
+          handler (val, oldVal) {
+            this.handleSelectMenu({item: val, oldItem: oldVal})
           }
         }
       },
       methods: {
         handleMenuClick (item, index) {
           this.selectedItem = item
+        },
+        handleSelectMenu ({item, oldItem}) {
+          if (this.depth === 0) {
+            // 第一层，对数据进行处理，推入或删除对应 id
+
+            // 推出旧项
+            if (oldItem && oldItem.id) {
+              const index = this.selectedIds.findIndex(child => child === oldItem.id)
+              index !== -1 && this.selectedIds.splice(index, 1)
+            }
+            // 推入新项
+            if (item && item.id) {
+              const index = this.selectedIds.findIndex(child => child === item.id)
+              index === -1 && this.selectedIds.push(item.id)
+            }
+          } else {
+            this.$emit('select-menu', {item, oldItem})
+          }
         }
       },
     })
@@ -81,7 +125,7 @@
   <p>相当于一个横向的无限 menu 组件</p>
   <p>参考链接：[如何实现无限递归组件]<a href="https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A" target="_blank">(https://mp.weixin.qq.com/s/KVK7jy_w5pk0eES_5WUz-A)</a></p>
   <div id="app">
-    <menu-nav :menu-data="menuData" :menu-depth-style-list="menuDepthStyleList"></menu-nav>
+    <menu-nav :selected-ids.sync="selectedIds" :menu-data="menuData" :menu-depth-style-list="menuDepthStyleList"></menu-nav>
   </div>
 
   <script>
@@ -90,6 +134,7 @@
       data () {
         return {
           // 定制每个层级 wrapper 的样式
+          selectedIds: [],
           menuDepthStyleList: [
             'background: lightcyan;',
             'background: lightgoldenrodyellow;'
