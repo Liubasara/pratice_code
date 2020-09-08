@@ -56,7 +56,22 @@ class MyPromise {
         })
       }
       if (this.state === FULFILLED) {
-        // 只有使用setTimeout异步执行才能把myPromise2传出去，不然myPromise2就是undefined
+        // 使用 setTimeout 异步执行把 myPromise2 传出去，不然myPromise2就是undefined
+        // 也可以使用 MutationObserver 来替代 setTimeout 可以达到微任务队列的效果（像 Vue 这类框架就是这么干的）
+//         const targetNode = document.createElement('div')
+//         targetNode.innerText = 0
+//         const config = { attributes: true, childList: true, subtree: true }
+//         const callback = function (mutationsList, observer) {
+//           let x = onFulFilled(this.value)
+//           if (x instanceof myPromise) {
+//             x.then(resolve, reject)
+//           } else {
+//             resolve(x)
+//           }
+//         }
+//         const observer = new MutationObserver(callback.bind(this))
+//         observer.observe(targetNode, config)
+//         targetNode.innerText = +targetNode.innerText + 1
         setTimeout(() => {
           let x = onFulFilled(this.value)
           // 你当然可以直接这样做，不过为了装逼(误)和更好的利用Promise以及判断循环调用的情况，我们对这个值进行通用的递归判断，拿到一个最终的value值(对，其实下面那个递归函数就是调用then函数不停地生成Promise，最终目的就是把最终调用resolve函数的Promise的this.value值拿出来)
