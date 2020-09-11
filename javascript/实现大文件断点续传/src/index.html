@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>实现大文件断点续传</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js"></script>
 </head>
 <body>
   <p>参考资料：</p>
@@ -40,9 +41,6 @@
       <input id="input-elm" type="file" style="display: none;">
     </div>
 
-    <p>
-      $0.style.width = +$0.style.width.slice(0, $0.style.width.length - 1) + 1 + '%'
-    </p>
     <div
       id="progress-bar"
       style="
@@ -56,6 +54,60 @@
     
   </div>
   <script>
+    const KB = 1024
+    const MB = 1024 * KB
+    const GB = 1024 * MB
+    const SPLIT_CHUNK_SIZE = 5 * MB // 5M 分割大小
+    /**
+     * myAjax
+     * **/
+    function myAjax (opt = {
+      url: '',
+      method: 'GET',
+      contentType: 'application/json',
+      onUploadProgress: (event) => {
+        if (event.lengthComputable) {
+          console.log(`${event.position}/${event.totalSize}`)
+        }
+      }
+    }) {
+      return new Promise((resolve, reject) => {
+        const {
+          url,
+          method = 'GET',
+          contentType = 'application/json',
+          onUploadProgress = () => {},
+          data
+        } = opt
+        if (!url || !method || !contentType) {
+          throw Error('配置有误')
+        }
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              resolve(xhr.responseText)
+            } else {
+              reject(xhr)
+            }
+          }
+        }
+        xhr.onprogress = onUploadProgress
+        xhr.open(method, url)
+        xhr.setRequestHeader('Content-Type', contentType)
+        switch (method) {
+          case 'GET':
+            xhr.send()
+            break
+          case 'POST':
+            xhr.send(data || {})
+            break
+          default:
+            throw Error('myAjax 暂不支持此 method')
+        }
+      })
+    }
+    
     function updateProgress (update = 1, reset = false) {
       const progressElm = document.getElementById('progress-bar')
       if (reset) {
