@@ -7,6 +7,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js"></script>
 </head>
 <body>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
   <p>参考资料：</p>
   <ul>
     <li><a href="https://github.com/xbc30/large-file-upload#nodejs%E5%A4%A7%E6%96%87%E4%BB%B6%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0%E6%96%AD%E7%82%B9%E7%BB%AD%E4%BC%A0httpwebsocket" target="_blank">[Nodejs大文件分片上传、断点续传(HTTP/WebSocket)]</a></li>
@@ -53,60 +59,13 @@
     </div>
     
   </div>
-  <script>
+  <script type="module">
+    import { myAjax } from './assets/utils.js'
     const KB = 1024
     const MB = 1024 * KB
     const GB = 1024 * MB
-    const SPLIT_CHUNK_SIZE = 5 * MB // 5M 分割大小
-    /**
-     * myAjax
-     * **/
-    function myAjax (opt = {
-      url: '',
-      method: 'GET',
-      contentType: 'application/json',
-      onUploadProgress: (event) => {
-        if (event.lengthComputable) {
-          console.log(`${event.position}/${event.totalSize}`)
-        }
-      }
-    }) {
-      return new Promise((resolve, reject) => {
-        const {
-          url,
-          method = 'GET',
-          contentType = 'application/json',
-          onUploadProgress = () => {},
-          data
-        } = opt
-        if (!url || !method || !contentType) {
-          throw Error('配置有误')
-        }
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            if (xhr.status >= 200 && xhr.status < 400) {
-              resolve(xhr.responseText)
-            } else {
-              reject(xhr)
-            }
-          }
-        }
-        xhr.onprogress = onUploadProgress
-        xhr.open(method, url)
-        xhr.setRequestHeader('Content-Type', contentType)
-        switch (method) {
-          case 'GET':
-            xhr.send()
-            break
-          case 'POST':
-            xhr.send(data || {})
-            break
-          default:
-            throw Error('myAjax 暂不支持此 method')
-        }
-      })
-    }
+    const SPLIT_CHUNK_SIZE = 5 * KB // 5KB 分割大小
+    const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
     
     function updateProgress (update = 1, reset = false) {
       const progressElm = document.getElementById('progress-bar')
@@ -114,11 +73,53 @@
         progressElm.style.width = '0%'
         return
       }
-      progressElm.style.width = +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
+      const percent = +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
+      progressElm.style.width = percent
+      progressElm.innerText = `${percent} / 100%`
     }
     function calcFileHash (file) {
       // 计算文件的 hash 值
-      console.log(file)
+      return new Promise((resolve, reject) => {
+        const totalChunks = Math.ceil(file.size / SPLIT_CHUNK_SIZE) // 一共分为 totalChunks 个区块
+        const spark = new SparkMD5.ArrayBuffer()
+        const fileReader = new FileReader()
+        let currentChunk = 0
+        function loadNext () {
+          let start = currentChunk * SPLIT_CHUNK_SIZE,
+            end = start + SPLIT_CHUNK_SIZE > file.size ?
+              file.size :
+              start + SPLIT_CHUNK_SIZE
+          fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+        }
+        fileReader.onload = (e) => {
+          // 对当前读取完的分片进行 md5 加工
+          spark.append(e.target.result)
+          currentChunk++
+          if (currentChunk < totalChunks) {
+            loadNext()
+          } else {
+            resolve({ md5: spark.end(), chunkTotal: currentChunk })
+          }
+        }
+        fileReader.onerror = (error) => {
+          reject(new Error('计算切片哈希值失败，请重新选择文件～'))
+        }
+        loadNext()
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+    async function startUpload () {
+      
+      return myAjax({
+        url: 'upload',
+        data: JSON.stringify({ md5: '', totalChunks: 1 }),
+        method: 'POST',
+        onUploadProgress: (event) => {
+          updateProgress.call(this, 0, true)
+          updateProgress.call(this, Math.ceil(event.loaded / event.total) * 100)
+        }
+      })
     }
     window.addEventListener('DOMContentLoaded', function () {
       const inputSelectArea = document.getElementById('my-input-select')
@@ -128,10 +129,12 @@
         inputElm.dispatchEvent(new MouseEvent('click'))
       })
 
-      inputElm.addEventListener('change', function (e) {
+      inputElm.addEventListener('change', async function (e) {
         if (this.files && this.files.length > 0) {
           const file = this.files[0]
-          calcFileHash(file)
+          const { md5, chunkTotal } = await calcFileHash(file)
+          await startUpload()
+          console.log('上传完成')
           return
         }
         throw Error('获取文件失败，请重试')
