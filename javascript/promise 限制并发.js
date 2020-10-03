@@ -13,7 +13,7 @@ function limitPromise (todoList, limit) {
         result.push(res)
         lockFn.splice(index, 1)
         if (todoList.length > 0) {
-          lockFn.push(wrapFnToPromise(todoList.shift()), lockFn.length - 1)
+          lockFn.push(wrapFnToPromise(todoList.shift(), lockFn.length))
         } else if (result.length === todoLen) {
           wattingResolve(result)
         }
