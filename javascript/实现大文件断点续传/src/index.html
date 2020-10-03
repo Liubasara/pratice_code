@@ -50,6 +50,7 @@
     <div
       id="progress-bar"
       style="
+        margin-top: 10px;
         width: 0%;
         height: 20px;
         background: lightcoral;
@@ -60,22 +61,28 @@
     
   </div>
   <script type="module">
-    import { myAjax } from './assets/utils.js'
+    import { myAjax, limitPromise } from './assets/utils.js'
     const KB = 1024
     const MB = 1024 * KB
     const GB = 1024 * MB
     const SPLIT_CHUNK_SIZE = 5 * KB // 5KB 分割大小
+    const SERIAL_UPLOAD_LIMIT = 10 // 单次串行上传个数限制
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
     
-    function updateProgress (update = 1, reset = false) {
+    function updateProgress (update = 1, reset = false, text = '正在进行上传', overwrite = true) {
       const progressElm = document.getElementById('progress-bar')
       if (reset) {
         progressElm.style.width = '0%'
         return
       }
-      const percent = +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
+      const percent = overwrite ? update + '%' : +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
       progressElm.style.width = percent
-      progressElm.innerText = `${percent} / 100%`
+      progressElm.innerHTML = `<div style="
+        position: absolute;
+        width: 100%;
+        left: 0;
+      ">${text}: ${percent} / 100%</div>`
+      // progressElm.innerText = `${percent} / 100%`
     }
     function calcFileHash (file) {
       // 计算文件的 hash 值
@@ -85,10 +92,8 @@
         const fileReader = new FileReader()
         let currentChunk = 0
         function loadNext () {
-          let start = currentChunk * SPLIT_CHUNK_SIZE,
-            end = start + SPLIT_CHUNK_SIZE > file.size ?
-              file.size :
-              start + SPLIT_CHUNK_SIZE
+          const start = currentChunk * SPLIT_CHUNK_SIZE,
+            end = Math.min(start + SPLIT_CHUNK_SIZE, file.size)
           fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
         }
         fileReader.onload = (e) => {
@@ -109,18 +114,6 @@
         console.log(err)
       })
     }
-    async function startUpload () {
-      
-      return myAjax({
-        url: 'upload',
-        data: JSON.stringify({ md5: '', totalChunks: 1 }),
-        method: 'POST',
-        onUploadProgress: (event) => {
-          updateProgress.call(this, 0, true)
-          updateProgress.call(this, Math.ceil(event.loaded / event.total) * 100)
-        }
-      })
-    }
     window.addEventListener('DOMContentLoaded', function () {
       const inputSelectArea = document.getElementById('my-input-select')
       const inputElm = document.getElementById('input-elm')
@@ -133,13 +126,101 @@
         if (this.files && this.files.length > 0) {
           const file = this.files[0]
           const { md5, chunkTotal } = await calcFileHash(file)
-          await startUpload()
+          await startUpload({ md5, chunkTotal, file })
           console.log('上传完成')
           return
         }
         throw Error('获取文件失败，请重试')
       })
     })
+
+    async function hashCheck ({ md5, chunkTotal, file }) {
+      // 跟后台校验当前文件是否已经上传过 or 是否需要切换断点续传
+      // 返回数据中 res.data.type == 2(文件已上传过) 1(断点续传) 0(从未上传)
+      // 若 type 为 1，则还会有一个 Array 类型的 res.data.index 属性标明哪些区块已经上传过
+      return myAjax({
+        url: '/hashCheck',
+        data: JSON.stringify({ md5, chunkTotal, chunkSize: file.size }),
+        method: 'POST',
+        onUploadProgress: (e) => {
+          updateProgress(0, true)
+          updateProgress(Math.ceil(e.loaded / e.total) * 100, false, '正在进行 hash 校验(1/3)', true)
+        }
+      })
+    }
+
+    async function startUpload ({ md5, chunkTotal, file }) {
+      let postHashRes
+      try {
+        postHashRes = JSON.parse(await hashCheck({ md5, chunkTotal, file }))
+        await buildFormDataToSend({ md5, chunkTotal, file, res: postHashRes })
+      } catch (e) {
+        throw e
+      }
+    }
+
+    async function buildFormDataToSend ({ md5, chunkTotal, file, res }) {
+      // TODO: 构建所有的上传 Promise 请求，选择并行或串行的方式进行上传
+      const chunkUploadReqs = []
+      const { data: { type, index: indexArr } } = res
+      for (let i = 0; i < chunkTotal; i++) {
+        if (
+          type === 0 ||
+          (type === 1 &&
+           indexArr.length > 0 &&
+           !indexArr.includes(i)
+          )
+        ) {
+          // 文件未上传或是断点续传
+          const start = SPLIT_CHUNK_SIZE * i
+          const end = Math.min(file.size, start + SPLIT_CHUNK_SIZE)
+          const form = new FormData()
+          form.append('file', blobSlice.call(file, start, end))
+          form.append('name', file.name)
+          form.append('index', i)
+          form.append('hash', md5)
+          form.append('chunkSize', end - start + 1)
+          form.append('totalNum', chunkTotal)
+          form.append('totalSize', file.size)
+          chunkUploadReqs.push(() => myAjax({
+            url: '/upload',
+            data: form,
+            method: 'POST',
+            contentType: 'multipart/form-data',
+            onUploadProgress: (e) => {
+              updateProgress(Math.ceil(e.loaded / e.total) * 100 * ((i + 1) / chunkTotal), false, '正在进行上传(2/3)', true)
+            }
+          }))
+        }
+      }
+      if (chunkUploadReqs.length >= 10) {
+        // 采用串行
+        updateProgress(0, true)
+        await limitPromise(chunkUploadReqs, SERIAL_UPLOAD_LIMIT)
+        console.log('串行上传完毕')
+      } else {
+        // 采用并行
+        updateProgress(0, true)
+        await Promise.all(chunkUploadReqs.map(fn => fn()))
+        console.log('并行上传完毕～')
+      }
+      await postChunkMerge()
+      return 1
+    }
+
+    async function postChunkMerge () {
+      // TODO: 请求文件合并
+      await myAjax({
+        url: '/mergeChunks',
+        data: JSON.stringify({}),
+        method: 'POST',
+        onUploadProgress: (e) => {
+          updateProgress(0, true)
+          updateProgress(Math.ceil(e.loaded / e.total) * 100, false, '正在请求合并分片(3/3)', true)
+        }
+      })
+      console.log('请求合并完成')
+    }
   </script>
 </body>
 </html>
