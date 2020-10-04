@@ -1,7 +1,11 @@
 const express = require('express')
 const path = require('path')
-// const fs = require('fs')
+const fs = require('fs')
 const bodyParser = require('body-parser')
+
+/** ========= 常规变量 Start ======= */
+const uploadPath = path.join(__dirname, 'uploads')
+/** =========常规变量 End ========== */
 
 const server = express()
 
@@ -16,14 +20,43 @@ server.get('', function (req, res) {
 })
 
 server.post('/hashCheck', function (req, res) {
-  // TODO: 校验文件 hash 值，返回 type
+  // 校验文件 hash 值，返回 type
   // 返回数据中 res.data.type == 2(文件已上传过) 1(断点续传) 0(从未上传)
-  res.status(200).send({
-    data: {
-      type: 1,
-      index: [88]
+  const { body: { md5, chunkTotal, chunkSize } } = req
+  const fileFragmentPath = path.join(uploadPath, `${md5}-${chunkSize}`, '/')
+  if (fs.existsSync(fileFragmentPath)) {
+    // 目录已存在，判断目录中的文件是否已经上传完
+    const chunks = fs.readdirSync(fileFragmentPath)
+    if (chunks.length === chunkTotal && chunkTotal !== 0) {
+      // 目录中的文件数目与需要的一致，则说明已经上传完毕
+      res.status(200).send({
+        data: {
+          type: 2
+        }
+      })
+    } else {
+      // 分片文件尚未完全上传完
+      const index = []
+      chunks.forEach(item => {
+        const reg = new RegExp(`${md5}-${chunkSize}` + '-(\\d*)\\.tmpfile')
+        const i = item.match(reg)
+        i && index.push(+i[1])
+      })
+      res.status(200).send({
+        data: {
+          type: 1,
+          index
+        }
+      })
     }
-  })
+  } else {
+    // 目录未存在
+    res.status(200).send({
+      data: {
+        type: 0
+      }
+    })
+  }
 })
 
 server.post('/upload', function (req, res) {
