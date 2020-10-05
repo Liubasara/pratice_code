@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实现大文件断点续传</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js"></script>
+</head>
+<body>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <p>参考资料：</p>
+  <ul>
+    <li><a href="https://github.com/xbc30/large-file-upload#nodejs%E5%A4%A7%E6%96%87%E4%BB%B6%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0%E6%96%AD%E7%82%B9%E7%BB%AD%E4%BC%A0httpwebsocket" target="_blank">[Nodejs大文件分片上传、断点续传(HTTP/WebSocket)]</a></li>
+    <li><a href="https://github.com/xbc30/large-file-upload/blob/master/client/src/components/upload.vue" target="_blank">[upload 组件]</a></li>
+  </ul>
+  <div>
+    <div
+      id="my-input-select"
+      style="
+        box-sizing: border-box;
+        width: 100px;
+        height: 100px;
+        border: 1px solid lightgray;
+        cursor: pointer;
+        user-select: none;
+      "
+    >
+      <span
+        style="
+          width: 100%;
+          height: 100%;
+          position: relative;
+          top: -7px;
+          display: flex;
+          font-size: 100px;
+          justify-content: center;
+          align-items: center;
+          font-weight: 10;
+        "
+      >
+        +
+      </span>
+      <input id="input-elm" type="file" style="display: none;">
+    </div>
+
+    <div
+      id="progress-bar"
+      style="
+        margin-top: 10px;
+        width: 0%;
+        height: 20px;
+        background: lightcoral;
+        transition: all 1s ease;
+      "
+    >
+    </div>
+    
+  </div>
+  <script type="module">
+    import { myAjax, limitPromise } from './assets/utils.js'
+    const KB = 1024
+    const MB = 1024 * KB
+    const GB = 1024 * MB
+    const SPLIT_CHUNK_SIZE = 5 * KB // 5KB 分割大小
+    const SERIAL_UPLOAD_LIMIT = 10 // 单次串行上传个数限制
+    const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
+    
+    function updateProgress (update = 1, reset = false, text = '正在进行上传', overwrite = true) {
+      const progressElm = document.getElementById('progress-bar')
+      if (reset) {
+        progressElm.style.width = '0%'
+        return
+      }
+      requestAnimationFrame(() => {
+        const percent = overwrite ? update + '%' : +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
+        progressElm.style.width = percent
+        progressElm.innerHTML = `<div style="
+          position: absolute;
+          width: 100%;
+          left: 0;
+        ">${text}: ${percent} / 100%</div>`
+      })
+      // progressElm.innerText = `${percent} / 100%`
+    }
+    function calcFileHash (file) {
+      // 计算文件的 hash 值
+      return new Promise((resolve, reject) => {
+        const totalChunks = Math.ceil(file.size / SPLIT_CHUNK_SIZE) // 一共分为 totalChunks 个区块
+        const spark = new SparkMD5.ArrayBuffer()
+        const fileReader = new FileReader()
+        let currentChunk = 0
+        function loadNext () {
+          const start = currentChunk * SPLIT_CHUNK_SIZE,
+            end = Math.min(start + SPLIT_CHUNK_SIZE, file.size)
+          fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+        }
+        fileReader.onload = (e) => {
+          // 对当前读取完的分片进行 md5 加工
+          spark.append(e.target.result)
+          currentChunk++
+          if (currentChunk < totalChunks) {
+            loadNext()
+          } else {
+            resolve({ md5: spark.end(), chunkTotal: currentChunk })
+          }
+        }
+        fileReader.onerror = (error) => {
+          reject(new Error('计算切片哈希值失败，请重新选择文件～'))
+        }
+        loadNext()
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+    window.addEventListener('DOMContentLoaded', function () {
+      const inputSelectArea = document.getElementById('my-input-select')
+      const inputElm = document.getElementById('input-elm')
+      inputSelectArea.addEventListener('click', function (e) {
+        // inputElm.click()
+        inputElm.dispatchEvent(new MouseEvent('click'))
+      })
+
+      inputElm.addEventListener('change', async function (e) {
+        if (this.files && this.files.length > 0) {
+          const file = this.files[0]
+          const { md5, chunkTotal } = await calcFileHash(file)
+          await startUpload({ md5, chunkTotal, file })
+          console.log('上传完成')
+          return
+        }
+        throw Error('获取文件失败，请重试')
+      })
+    })
+
+    async function hashCheck ({ md5, chunkTotal, file }) {
+      // 跟后台校验当前文件是否已经上传过 or 是否需要切换断点续传
+      // 返回数据中 res.data.type == 2(文件已上传过未合并) 1(断点续传) 0(从未上传) 3(已上传并合并过)
+      // 若 type 为 1，则还会有一个 Array 类型的 res.data.index 属性标明哪些区块已经上传过
+      return myAjax({
+        url: '/hashCheck',
+        data: JSON.stringify({ md5, chunkTotal, chunkSize: file.size, fileName: file.name }),
+        method: 'POST',
+        onUploadProgress: (e) => {
+          updateProgress(0, true)
+          updateProgress(Math.ceil(e.loaded / e.total) * 100, false, '正在进行 hash 校验(1/3)', true)
+        }
+      })
+    }
+
+    async function startUpload ({ md5, chunkTotal, file }) {
+      let postHashRes
+      try {
+        postHashRes = JSON.parse(await hashCheck({ md5, chunkTotal, file }))
+        if (postHashRes.data.type === 3) {
+          updateProgress(100, false, '文件已存在', true)
+          return
+        }
+        await buildFormDataToSend({ md5, chunkTotal, file, res: postHashRes })
+      } catch (e) {
+        throw e
+      }
+    }
+
+    async function buildFormDataToSend ({ md5, chunkTotal, file, res }) {
+      // 构建所有的上传 Promise 请求，选择并行或串行的方式进行上传
+      const chunkUploadReqs = []
+      const { data: { type, index: indexArr } } = res
+      for (let i = 0; i < chunkTotal; i++) {
+        if (
+          type === 0 ||
+          (type === 1 &&
+           indexArr.length > 0 &&
+           !indexArr.includes(i)
+          )
+        ) {
+          // 文件未上传或是断点续传
+          const start = SPLIT_CHUNK_SIZE * i
+          const end = Math.min(file.size, start + SPLIT_CHUNK_SIZE)
+          const form = new FormData()
+          form.append('file', blobSlice.call(file, start, end))
+          form.append('name', file.name)
+          form.append('index', i)
+          form.append('hash', md5)
+          form.append('chunkSize', end - start + 1)
+          form.append('totalNum', chunkTotal)
+          form.append('totalSize', file.size)
+          chunkUploadReqs.push(() => myAjax({
+            url: '/upload',
+            data: form,
+            method: 'POST',
+            contentType: 'multipart/form-data',
+            onUploadProgress: (e) => {
+              updateProgress(Math.ceil(e.loaded / e.total) * 100 * ((i + 1) / chunkTotal), false, '正在进行上传(2/3)', true)
+            }
+          }))
+        }
+      }
+      if (chunkUploadReqs.length >= 10) {
+        // 采用串行
+        updateProgress(0, true)
+        // 串行传输，一次传输最大并发请求量为 SERIAL_UPLOAD_LIMIT 个
+        await limitPromise(chunkUploadReqs, SERIAL_UPLOAD_LIMIT)
+        console.log('串行上传完毕')
+      } else {
+        // 采用并行
+        updateProgress(0, true)
+        await Promise.all(chunkUploadReqs.map(fn => fn()))
+        console.log('并行上传完毕～')
+      }
+      await postChunkMerge({ md5, chunkTotal, file })
+      return 1
+    }
+
+    async function postChunkMerge ({ md5, chunkTotal, file }) {
+      // 请求文件合并
+      await myAjax({
+        url: '/mergeChunks',
+        data: JSON.stringify({
+          md5,
+          chunkTotal,
+          chunkSize: file.size,
+          fileName: file.name
+        }),
+        method: 'POST',
+        onUploadProgress: (e) => {
+          updateProgress(0, true)
+          updateProgress(Math.ceil(e.loaded / e.total) * 100, false, '正在请求合并分片(3/3)', true)
+        }
+      })
+      console.log('请求合并完成')
+    }
+  </script>
+</body>
+</html>
