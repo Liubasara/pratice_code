@@ -1,3 +1,6 @@
+/**
+ * 参考资料： https://github.com/xbc30/large-file-upload/blob/master/server/app/controller/home.js
+ */
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
@@ -64,10 +67,42 @@ server.post('/upload', function (req, res) {
   res.sendStatus(201)
 })
 
-server.post('/mergeChunks', function (req, res) {
-  // TODO: 等所有上传完毕后进行合并
+server.post('/mergeChunks', async function (req, res) {
+  // 等所有上传完毕后进行合并
+  const { body: { md5, fileName, chunkSize } } = req
+  const fileFragmentPath = path.join(uploadPath, `${md5}-${chunkSize}`, '/')
+  const chunks = fs.readdirSync(fileFragmentPath)
+  const chunksPathList = chunks.map(chunkName => path.join(fileFragmentPath, chunkName))
+  const mergeFilePath = path.join(uploadPath, fileName)
+  // fs.openSync(mergeFilePath, 'w') // 创建一个空文件
+  await streamMerge(chunksPathList, mergeFilePath)
   res.sendStatus(200)
 })
+
+/**
+ * 基于流将多个文件合并到一个文件中
+ * 参考：https://zhuanlan.zhihu.com/p/131627741
+ * @param {Array<string>} chunksPathList 
+ * @param {string} mergeFilePath 
+ */
+async function streamMerge (chunksPathList, mergeFilePath) {
+  const fileWriteStream = fs.createWriteStream(mergeFilePath)
+  const chunksLen = chunksPathList.length
+  for (let i = 0; i < chunksLen; i++) {
+    const currentReadStream = fs.createReadStream(chunksPathList[i])
+    await new Promise((resolve, reject) => {
+      currentReadStream.pipe(fileWriteStream, { end: false })
+      currentReadStream.on('end', () => {
+        resolve()
+      })
+      currentReadStream.on('error', (err) => {
+        fileWriteStream.close()
+        reject(err)
+      })
+    })
+  }
+  return
+}
 
 const client = server.listen(3000, function () {
   console.log(`Listening on port ${client.address().port}`)
