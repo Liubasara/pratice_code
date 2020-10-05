@@ -66,7 +66,7 @@
     const KB = 1024
     const MB = 1024 * KB
     const GB = 1024 * MB
-    const SPLIT_CHUNK_SIZE = 100 * KB // 5KB 分割大小
+    const SPLIT_CHUNK_SIZE = 5 * KB // 5KB 分割大小
     const SERIAL_UPLOAD_LIMIT = 10 // 单次串行上传个数限制
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
     
@@ -76,13 +76,15 @@
         progressElm.style.width = '0%'
         return
       }
-      const percent = overwrite ? update + '%' : +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
-      progressElm.style.width = percent
-      progressElm.innerHTML = `<div style="
-        position: absolute;
-        width: 100%;
-        left: 0;
-      ">${text}: ${percent} / 100%</div>`
+      requestAnimationFrame(() => {
+        const percent = overwrite ? update + '%' : +progressElm.style.width.slice(0, progressElm.style.width.length - 1) + update + '%'
+        progressElm.style.width = percent
+        progressElm.innerHTML = `<div style="
+          position: absolute;
+          width: 100%;
+          left: 0;
+        ">${text}: ${percent} / 100%</div>`
+      })
       // progressElm.innerText = `${percent} / 100%`
     }
     function calcFileHash (file) {
@@ -137,11 +139,11 @@
 
     async function hashCheck ({ md5, chunkTotal, file }) {
       // 跟后台校验当前文件是否已经上传过 or 是否需要切换断点续传
-      // 返回数据中 res.data.type == 2(文件已上传过) 1(断点续传) 0(从未上传)
+      // 返回数据中 res.data.type == 2(文件已上传过未合并) 1(断点续传) 0(从未上传) 3(已上传并合并过)
       // 若 type 为 1，则还会有一个 Array 类型的 res.data.index 属性标明哪些区块已经上传过
       return myAjax({
         url: '/hashCheck',
-        data: JSON.stringify({ md5, chunkTotal, chunkSize: file.size }),
+        data: JSON.stringify({ md5, chunkTotal, chunkSize: file.size, fileName: file.name }),
         method: 'POST',
         onUploadProgress: (e) => {
           updateProgress(0, true)
@@ -154,6 +156,10 @@
       let postHashRes
       try {
         postHashRes = JSON.parse(await hashCheck({ md5, chunkTotal, file }))
+        if (postHashRes.data.type === 3) {
+          updateProgress(100, false, '文件已存在', true)
+          return
+        }
         await buildFormDataToSend({ md5, chunkTotal, file, res: postHashRes })
       } catch (e) {
         throw e
@@ -161,7 +167,7 @@
     }
 
     async function buildFormDataToSend ({ md5, chunkTotal, file, res }) {
-      // TODO: 构建所有的上传 Promise 请求，选择并行或串行的方式进行上传
+      // 构建所有的上传 Promise 请求，选择并行或串行的方式进行上传
       const chunkUploadReqs = []
       const { data: { type, index: indexArr } } = res
       for (let i = 0; i < chunkTotal; i++) {
@@ -211,7 +217,7 @@
     }
 
     async function postChunkMerge ({ md5, chunkTotal, file }) {
-      // TODO: 请求文件合并
+      // 请求文件合并
       await myAjax({
         url: '/mergeChunks',
         data: JSON.stringify({

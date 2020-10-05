@@ -26,9 +26,18 @@ server.get('', function (req, res) {
 
 server.post('/hashCheck', function (req, res) {
   // 校验文件 hash 值，返回 type
-  // 返回数据中 res.data.type == 2(文件已上传过) 1(断点续传) 0(从未上传)
-  const { body: { md5, chunkTotal, chunkSize } } = req
+  // 返回数据中 res.data.type == 2(文件已上传过，未合并) 1(断点续传) 0(从未上传) 3(已上传并合并过)
+  const { body: { md5, chunkTotal, chunkSize, fileName } } = req
   const fileFragmentPath = path.join(uploadPath, `${md5}-${chunkSize}`, '/')
+  const filePath = path.join(uploadPath, fileName)
+  if (fs.existsSync(filePath)) {
+    res.status(200).send({
+      data: {
+        type: 3
+      }
+    })
+    return
+  }
   if (fs.existsSync(fileFragmentPath)) {
     // 目录已存在，判断目录中的文件是否已经上传完
     const chunks = fs.readdirSync(fileFragmentPath)
@@ -65,7 +74,7 @@ server.post('/hashCheck', function (req, res) {
 })
 
 server.post('/upload', multipartyMiddleware, function (req, res) {
-  // TODO: 上传接口，将分片文件保存在服务器
+  // 上传接口，将分片文件保存在服务器
   const { body: { chunkSize, hash, index, name, totalNum, totalSize } } = req
   const fileFragmentPath = path.join(uploadPath, `${hash}-${totalSize}`, '/')
   !fs.existsSync(fileFragmentPath) && fs.mkdirSync(fileFragmentPath) // 若该临时目录不存在，则创建
@@ -90,10 +99,19 @@ server.post('/mergeChunks', async function (req, res) {
     return
   }
   const chunks = fs.readdirSync(fileFragmentPath)
-  const chunksPathList = chunks.map(chunkName => path.join(fileFragmentPath, chunkName))
+  const chunksPathList = chunks
+   .map(chunkName => path.join(fileFragmentPath, chunkName))
+   .sort((a, b) => {
+    // 将 ${md5}-${chunkSize}-${index} 格式命名的分片文件列表按照 index 从小到大进行排序，方便下一步进行合并
+    const aIndex = +a.match(new RegExp(`${md5}-${chunkSize}` + '-(\\d*)\\.tmpfile'))[1]
+    const bIndex = +b.match(new RegExp(`${md5}-${chunkSize}` + '-(\\d*)\\.tmpfile'))[1]
+    return aIndex - bIndex
+  })
   const mergeFilePath = path.join(uploadPath, fileName)
   // fs.openSync(mergeFilePath, 'w') // 创建一个空文件
   await streamMerge(chunksPathList, mergeFilePath)
+  // 合并完成后删除目录
+  delDir(fileFragmentPath)
   res.sendStatus(200)
 })
 
@@ -120,6 +138,27 @@ async function streamMerge (chunksPathList, mergeFilePath) {
     })
   }
   return
+}
+
+/**
+ * 清空并删除某个文件夹
+ * @param {string} folderPath 需删除文件夹路径
+ * @param {Array<string>} excludePaths 不删除文件路径集合
+ */
+function delDir (targetPath, excludePaths) {
+  let files = []
+  if (fs.existsSync(targetPath)) {
+    files = fs.readdirSync(targetPath)
+    files.forEach(file => {
+      const curPath = targetPath + '/' + file
+      if (fs.statSync(curPath).isDirectory()) {
+        delDir(curPath) // 递归删除文件夹
+      } else {
+        fs.unlinkSync(curPath) // 删除文件
+      }
+    })
+    !(excludePaths && excludePaths.includes(targetPath)) && fs.rmdirSync(targetPath)
+  }
 }
 
 const client = server.listen(3000, function () {
