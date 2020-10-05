@@ -31,7 +31,10 @@ export const myAjax = function (
     }
     xhr.onprogress = onUploadProgress
     xhr.open(method, url)
-    xhr.setRequestHeader('Content-Type', contentType)
+    if (contentType !== 'multipart/form-data') {
+      // 参考资料：[正确设置 multipart/form-data 的 contentType - Missing boundary in multipart/form-data POST](https://stackoverflow.com/questions/39280438/fetch-missing-boundary-in-multipart-form-data-post)
+      xhr.setRequestHeader('Content-Type', contentType)
+    }
     switch (method) {
       case 'GET':
         xhr.send()

@@ -66,7 +66,7 @@
     const KB = 1024
     const MB = 1024 * KB
     const GB = 1024 * MB
-    const SPLIT_CHUNK_SIZE = 5 * KB // 5KB 分割大小
+    const SPLIT_CHUNK_SIZE = 100 * KB // 5KB 分割大小
     const SERIAL_UPLOAD_LIMIT = 10 // 单次串行上传个数限制
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
     
@@ -197,6 +197,7 @@
       if (chunkUploadReqs.length >= 10) {
         // 采用串行
         updateProgress(0, true)
+        // 串行传输，一次传输最大并发请求量为 SERIAL_UPLOAD_LIMIT 个
         await limitPromise(chunkUploadReqs, SERIAL_UPLOAD_LIMIT)
         console.log('串行上传完毕')
       } else {
@@ -211,7 +212,6 @@
 
     async function postChunkMerge ({ md5, chunkTotal, file }) {
       // TODO: 请求文件合并
-      console.log(file)
       await myAjax({
         url: '/mergeChunks',
         data: JSON.stringify({
