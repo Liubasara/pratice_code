@@ -1,3 +1,4 @@
+
 // 参考资料：
 // - [手撕源码系列 —— lodash 的 debounce 与 throttle](https://juejin.im/post/6844903990639984654)
 // - [lodash防抖节流源码理解](https://juejin.im/post/6844903982297513991)
@@ -20,4 +21,80 @@
  *   - flush（负责取消并立即执行一次 debounce 函数）
  */
 
-// TODO: 函数实现
+const FUNC_ERROR_TEXT = 'Need A Function'
+
+const isObject = (obj) => obj !== null && typeof obj === 'object'
+
+const now = () => new Date().getTime()
+
+/**
+ * 
+ * @param {Function} fn 待防抖函数
+ * @param {number} [wait=0] 等待时间
+ * @param {Object} [options={}] 选项
+ * @param {boolean} [options.leading=false] 是否前置执行
+ * @param {boolean} [options.trailing=true] 是否后置执行
+ * @returns {Function} 防抖包装后函数
+ */
+function debounce (fn, wait = 0, options = {}) {
+  let lastArgs,
+      lastThis,
+      maxWait,
+      result,
+      timerId,
+      lastCallTime,
+      lastInvokeTime = 0,
+      leading = false,
+      maxing = false,
+      trailing = true
+  formatArgs()
+  /**
+   * 触发的包装返回函数
+   * @param  {...any} args 
+   */
+  function debounced (...args) {
+    lastThis = this // 最后调用的函数的执行上下文，传给闭包变量以便其他方法调用。this 表示触发的事件对象，所有调用的执行上下文应该都基于这个对象
+    lastArgs = args // 最后调用的函数的入参，传给闭包变量以便其他方法调用
+
+    clearTimeout(timerId)
+    timerId = startTimer(wait)
+  }
+
+  /**
+   * 负责校验入参
+   */
+  function formatArgs () {
+    if (typeof fn !== 'function') {
+      throw new TypeError(FUNC_ERROR_TEXT)
+    }
+    wait = Number(wait) || 0
+    if (isObject(options)) {
+      leading = 'leading' in options ? !!options.leading : leading
+      trailing = 'trailing' in options ? !!options.trailing : trailing
+    }
+  }
+  /**
+   * 负责设置定时器
+   */
+  function startTimer () {
+    return setTimeout(timeExpired, wait)
+  }
+
+  /**
+   * 负责定时器回调
+   */
+  function timeExpired () {
+    return invokeFunc()
+  }
+
+  /**
+   * 负责调用真正的函数
+   */
+  function invokeFunc () {
+    let args = lastArgs,
+        thisArgs = lastThis
+    lastArgs = lastThis = undefined // 在调用之前将存储的公共变量置为空，方便垃圾回收无用的事件和变量（猜测？）
+    fn.apply(thisArgs, args)
+  }
+  return debounced
+}
