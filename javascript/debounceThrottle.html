@@ -9,6 +9,7 @@
   <p>debounce 设置的 delay 时间结束就进行下一次操作，于是每次 debounce 都为该用户重新生成定时器，回调函数被延迟了不计其数次。频繁的延迟会导致用户迟迟得不到响应，用户同样会产生“这个页面卡死了”的观感。</p>
   <p>为了避免弄巧成拙，我们需要借力 throttle 的思想，打造一个“有底线”的 debounce——等你可以，但我有我的原则：delay 时间内，我可以为你重新生成定时器；</p>
   <p>但只要delay的时间到了，我必须要给用户一个响应。这个 throttle 与 debounce “合体”思路，已经被很多成熟的前端库应用到了它们的加强版 throttle 函数的实现中 。</p>
+  <p>但这个版本同样有一个明显的问题：<strong>这种简单的写法采用先判断节流再判断防抖的逻辑，会导致元素的第一次点击采用的是节流效果而不是防抖效果，也就是点击第一次时是在 setTimeout 之前就触发了。如果想要将函数变得更像防抖一点而不是节流，可以参考 lodash 中 debounce 的实现</strong></p>
   <button id="clickButton">clickMe</button>
   <div id="clickCount">0</div>
   <script>
