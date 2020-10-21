@@ -42,8 +42,8 @@ function debounce (fn, wait = 0, options = {}) {
       maxWait,
       result,
       timerId,
-      lastCallTime,
-      lastInvokeTime = 0,
+      lastCallTime, // 最后一次触发事件时间
+      lastInvokeTime = 0, // 最后一次调用时间
       leading = false,
       maxing = false,
       trailing = true
@@ -53,9 +53,13 @@ function debounce (fn, wait = 0, options = {}) {
    * @param  {...any} args 
    */
   function debounced (...args) {
+    const time = now()
+    const isInvoking = shouldInvoke(time) // 根据时间戳判断本次调用是否应该调用被防抖方法
+    lastCallTime = time // 保存最后一次被触发时间（PS：这一步不能和上一步互换，因为 shouldInvoke 需要依据被覆盖前的 lastCallTime 工作）
     lastThis = this // 最后调用的函数的执行上下文，传给闭包变量以便其他方法调用。this 表示触发的事件对象，所有调用的执行上下文应该都基于这个对象
     lastArgs = args // 最后调用的函数的入参，传给闭包变量以便其他方法调用
 
+    
     clearTimeout(timerId)
     timerId = startTimer(wait)
   }
@@ -71,6 +75,8 @@ function debounce (fn, wait = 0, options = {}) {
     if (isObject(options)) {
       leading = 'leading' in options ? !!options.leading : leading
       trailing = 'trailing' in options ? !!options.trailing : trailing
+      maxing = 'maxWait' in options
+      maxWait = maxing ? options.maxWait : 0
     }
   }
   /**
@@ -95,6 +101,24 @@ function debounce (fn, wait = 0, options = {}) {
         thisArgs = lastThis
     lastArgs = lastThis = undefined // 在调用之前将存储的公共变量置为空，方便垃圾回收无用的事件和变量（猜测？）
     fn.apply(thisArgs, args)
+  }
+
+  /**
+   * 根据传入的时间戳，最后一次调用时间，最后一次触发时间来综合判断是否应该调用被防抖函数
+   * 四种情况下，被防抖处理的函数应该被调用：
+   * 1. 首次调用debouncedFunc
+   * 2. 距离上一次debouncedFunc调用后已延迟wait毫秒
+   * 3. func调用总延迟达到maxWait毫秒
+   * 4. 系统时间倒退
+   * @param {Number} time 
+   */
+  function shouldInvoke (time) {
+    const timeSinceLastCall = time - lastCallTime
+    const timeSinceLastInvoke = time - lastInvokeTime
+    return lastCallTime === undefined || // 首次调用，此时 lastCallTime 没有值，允许调用
+           timeSinceLastCall < 0 || // 本次触发时间比上次触发时间早（...）说明出现了时间倒流，允许调用
+           timeSinceLastCall >= wait || // 本次触发时间与上次触发时间间隔超过设定防抖时间 wait，允许调用（正常防抖调用情况）
+           maxing && timeSinceLastInvoke >= maxWait // 若设置了最大等待时间，则相当于在防抖之中加入了节流。距离上次调用若超过了最大等待时间，则也应该允许调用
   }
   return debounced
 }
