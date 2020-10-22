@@ -40,7 +40,7 @@ function debounce (fn, wait = 0, options = {}) {
   let lastArgs,
       lastThis,
       maxWait,
-      result,
+      result, // 被防抖函数最终执行结果
       timerId,
       lastCallTime, // 最后一次触发事件时间
       lastInvokeTime = 0, // 最后一次调用时间
@@ -59,7 +59,12 @@ function debounce (fn, wait = 0, options = {}) {
     lastThis = this // 最后调用的函数的执行上下文，传给闭包变量以便其他方法调用。this 表示触发的事件对象，所有调用的执行上下文应该都基于这个对象
     lastArgs = args // 最后调用的函数的入参，传给闭包变量以便其他方法调用
 
-    
+    if (isInvoking) {
+      if (timerId === undefined) {
+        // 第一次调用
+        return leadingEdge(lastCallTime)
+      }
+    }
     clearTimeout(timerId)
     timerId = startTimer(wait)
   }
@@ -95,12 +100,17 @@ function debounce (fn, wait = 0, options = {}) {
 
   /**
    * 负责调用真正的函数
+   * @param {Number} time 最后一次事件触发的时间
    */
-  function invokeFunc () {
+  function invokeFunc (time) {
     let args = lastArgs,
         thisArgs = lastThis
-    lastArgs = lastThis = undefined // 在调用之前将存储的公共变量置为空，方便垃圾回收无用的事件和变量（猜测？）
-    fn.apply(thisArgs, args)
+    // 在调用之前将存储的公共变量置为空，以免在只点击一次的情况下 leadingEdge 和 trailingEdge 重复调用方法。同时方便垃圾回收无用的事件和变量
+    lastArgs = lastThis = undefined
+    // 刷新最后一次函数调用的时间
+    lastInvokeTime = time
+    result = fn.apply(thisArgs, args)
+    return result
   }
 
   /**
@@ -119,6 +129,15 @@ function debounce (fn, wait = 0, options = {}) {
            timeSinceLastCall < 0 || // 本次触发时间比上次触发时间早（...）说明出现了时间倒流，允许调用
            timeSinceLastCall >= wait || // 本次触发时间与上次触发时间间隔超过设定防抖时间 wait，允许调用（正常防抖调用情况）
            maxing && timeSinceLastInvoke >= maxWait // 若设置了最大等待时间，则相当于在防抖之中加入了节流。距离上次调用若超过了最大等待时间，则也应该允许调用
+  }
+
+  /** 前置调用函数，判断函数：应该在定时器开始前调用（节流），抑或单纯的开始定时器（防抖）
+   *  @param {Number} time 最后一次事件触发的时间
+   */
+  function leadingEdge (time) {
+    timerId = startTimer()
+    // 若是前置执行，则在定时器开始前先执行一次
+    return leading ? invokeFunc(time) : result
   }
   return debounced
 }
