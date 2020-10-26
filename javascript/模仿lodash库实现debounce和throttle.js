@@ -65,7 +65,11 @@ function debounce(fn, wait = 0, options = {}) {
         // 第一次调用
         return leadingEdge(lastCallTime)
       }
-      // TODO: ??? 待解释
+      // Handle invocations in a tight loop.
+      // 用于处理当 leading 和 trailing 都为 false，但是却有 maxWait 的情况
+      // 此时的防抖函数表现应该是: 
+      // - 对于单次触发无论如何都不响应（前置后置调用都被取消）
+      // - 从第二次触发开始，进入到类似节流函数的效果（会立刻调用 invokeFunc 执行一次，随后 timerId 被定时器触发的 trailingEdge 清空，下一次循环依旧从被无视的第一次点击开始）
       if (maxing) {
         clearTimeout(timerId)
         timerId = startTimer(wait)
