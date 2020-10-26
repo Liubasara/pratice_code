@@ -67,7 +67,7 @@ function debounce(fn, wait = 0, options = {}) {
       }
       // Handle invocations in a tight loop.
       // 用于处理当 leading 和 trailing 都为 false，但是却有 maxWait 的情况
-      // 此时的防抖函数表现应该是: 
+      // 此时的防抖函数表现应该是:
       // - 对于单次触发无论如何都不响应（前置后置调用都被取消）
       // - 从第二次触发开始，进入到类似节流函数的效果（会立刻调用 invokeFunc 执行一次，随后 timerId 被定时器触发的 trailingEdge 清空，下一次循环依旧从被无视的第一次点击开始）
       if (maxing) {
@@ -189,5 +189,23 @@ function debounce(fn, wait = 0, options = {}) {
 
     return result
   }
+
+  /**
+   * 工具函数 cancel: 取消当前防抖流程记录的所有相关变量，cancel 后的下一次触发将等同于第一次触发
+   */
+  function cancel() {
+    if (timerId !== undefined) clearTimeout(timerId)
+    lastInvokeTime = 0
+    lastCallTime = lastThis = lastArgs = timerId = undefined
+  }
+
+  /**
+   * 工具函数 flush: 当处于防抖流程中时可调用该方法（timerId 不为 undefined），立即模拟一次定时器到时流程
+   */
+  function flush() {
+    return timerId === undefined ? result : trailingEdge(now())
+  }
+  debounced.cancel = cancel
+  debounced.flush = flush
   return debounced
 }
