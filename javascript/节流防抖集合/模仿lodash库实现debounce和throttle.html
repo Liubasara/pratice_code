@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>进阶版的节流防抖lodash版本</title>
+</head>
+<body>
+  <button id="debounceButton">debounce</button>
+  <button id="throttleButton">throttle</button>
+  <script src="./模仿lodash库实现debounce和throttle.js"></script>
+  <script>
+    const debounceEl = document.querySelector('#debounceButton')
+    let count = 0
+    const debouceFunc = debounce(() => {
+      console.log('debounce', ++count)
+    }, 1000, {
+      maxWait: 2000
+    })
+    debounceEl.addEventListener('click', debouceFunc)
+  </script>
+
+<script>
+  const throttleEl = document.querySelector('#throttleButton')
+  let throttleCount = 0
+  const throttleFunc = throttle(() => {
+    console.log('throttle', ++throttleCount)
+  }, 1000)
+  throttleEl.addEventListener('click', throttleFunc)
+</script>
+
+  <!-- <script src="https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.20/lodash.js"></script> -->
+</body>
+</html>

@@ -209,3 +209,11 @@ function debounce(fn, wait = 0, options = {}) {
   debounced.flush = flush
   return debounced
 }
+
+function throttle (fn, wait = 0, options = {}) {
+  return debounce(fn, wait, {
+    leading: options.leading || true,
+    maxWait: options.maxWait || wait,
+    trailing: options.trailing || false
+  })
+}
