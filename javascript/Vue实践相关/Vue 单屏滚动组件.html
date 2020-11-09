@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <!-- 
+    参考资料：
+     - [监听PC/移动端，鼠标滑动，滚轮，手指滑动事件](https://my.oschina.net/zhubaoxin/blog/882683)
+  -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue 单屏滚动组件</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+  </head>
+  <body>
+    <!-- 简单的节流函数 -->
+    <script>
+      const throttle = function (func, wait = 50) {
+        var canRun = true
+        return function (...args) {
+          if (!canRun) {
+            return
+          } else {
+            canRun = false
+            func.apply(this, args)
+            setTimeout(function () {
+              canRun = true
+            }, wait)
+          }
+        }
+      }
+    </script>
+
+    <!-- 滚动组件 -->
+    <style>
+      .wrap {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .container {
+        position: relative;
+        width: 100vw;
+        top: 0;
+        left: 0;
+        transition: all ease-in-out .7s;
+        /* 可以设置这个属性以防 mousedown 和 mouseup 因为双击而无法触发监听 */
+        /* user-select: none; */
+      }
+      .item {
+        width: 100vw;
+        height: 100vh;
+      }
+      .item::before {
+        display: table;
+        content: " ";
+      }
+      #list {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 20px;
+        margin: auto;
+        height: fit-content;
+      }
+      #list li {
+        list-style: circle inside;
+      }
+      #list li.active {
+        /* 当前页面，实心圆  */
+        list-style: disc inside;
+      }
+    </style>
+    <script type="text/x-template" id="m-custom-wheel-scroll">
+      <div class="wrap">
+        <div
+          class="container"
+          :style="containerStyle"
+          @mousewheel="handleMouseWheel($event)"
+          @dom-mouse-scroll="handleMouseWheel($event)"
+          @mousedown="handleMousedown($event)"
+          @mouseup="handleMouseup($event)"
+          @touchstart="handleTouchStart($event)"
+          @touchmove="handleTouchMove($event)"
+          @touchend="handleTouchEnd($event)"
+        >
+          <slot></slot>
+        </div>
+        <ul id="list" v-if="pageLength">
+          <li
+            v-for="(item) in new Array(pageLength).fill(1).map((a, index) => index)"
+            :key="item"
+            :class="[currentPage === item ? 'active' : '']"
+            @click="handleLiClick(item)">
+          </li>
+        </ul>
+      </div>
+    </script>
+    <script>
+      var mCustomWheelScroll = Vue.component('m-custom-wheel-scroll', {
+        template: '#m-custom-wheel-scroll',
+        data() {
+          return {
+            pageLength: 0,
+            currentPage: 0,
+            PCgesturePositionData: {
+              x: null,
+              y: null
+            },
+            mobileGesturePositionData: {
+              x: null,
+              y: null
+            }
+          }
+        },
+        mounted() {
+          if (!this.$slots.default) return
+          const slotItems = Array.prototype.filter.call(this.$slots.default, (item) => !!item.tag)
+          this.pageLength = slotItems.length
+          for (let item of slotItems) {
+            const { elm } = item
+            // 将每个元素单独设置为一屏
+            elm.classList.add('item')
+          }
+        },
+        computed: {
+          containerStyle () {
+            return {
+              height: (100 * this.pageLength || 100) + 'vh',
+              top: (-100 * this.currentPage) + 'vh'
+            }
+          },
+          useGesture () {
+            return this.isMobile || this.gesture
+          }
+        },
+        props: {
+          isMobile: {
+            type: Boolean,
+            default: false
+          },
+          gesture: {
+            type: Boolean,
+            default: false
+          }
+        },
+        methods: {
+          handleLiClick (index) {
+            this.currentPage = index
+          },
+          handleMouseWheel: throttle(function (ev) {
+            // PC 端鼠标滑轮滚动
+            ev.wheelDelta > 0 ? this.previousPage() : this.nextPage()
+          }, 200),
+          handleMousedown (ev) {
+            // PC 端鼠标滑动摁下
+            if (!this.useGesture) return
+            this.resetPCGesturePositionData()
+            this.PCgesturePositionData.y = ev.screenY
+          },
+          handleMouseup (ev) {
+            // PC 端鼠标滑动抬起
+            if (!this.useGesture) return
+            const { y } = this.PCgesturePositionData
+            if (y && y !== ev.screenY) {
+              // 每次获得的 screenY 会有偏差，以防万一给 100 左右的偏差值
+              ;(y > ev.screenY + 100) && this.nextPage()
+              ;(y < ev.screenY - 100) && this.previousPage()
+            }
+            this.resetPCGesturePositionData()
+          },
+          handleTouchStart: throttle(function (ev) {
+            // 移动端开始滑动
+            if (!this.useGesture || !this.isMobile) return
+            this.resetMobileGesturePositionData()
+            // changedTouches：涉及当前事件的手指的一个列表。changedTouches[0]是列表中的第一个手指
+            this.mobileGesturePositionData.y = ev.changedTouches[0].screenY
+          }, 500),
+          handleTouchMove (ev) {
+            // 阻止移动端浏览器默认下拉刷新
+            if (!this.useGesture || !this.isMobile) return
+            ev.preventDefault()
+          },
+          handleTouchEnd (ev) {
+            // 移动端滑动结束
+            if (!this.useGesture || !this.isMobile) return
+            const { y } = this.mobileGesturePositionData
+            if (y && y !== ev.screenY) {
+              // 每次获得的 screenY 会有偏差，以防万一给 100 左右的偏差值
+              ;(y > ev.changedTouches[0].screenY + 100) && this.nextPage()
+              ;(y < ev.changedTouches[0].screenY - 100) && this.previousPage()
+            }
+            this.resetMobileGesturePositionData()
+          },
+          nextPage () {
+            this.currentPage === this.pageLength - 1 ?
+              this.currentPage = 0 :
+              this.currentPage++
+          },
+          previousPage () {
+            this.currentPage !== 0 && this.currentPage--
+          },
+          resetPCGesturePositionData () {
+            this.PCgesturePositionData = {
+              x: null,
+              y: null
+            }
+          },
+          resetMobileGesturePositionData () {
+            this.mobileGesturePositionData = {
+              x: null,
+              y: null
+            }
+          }
+        }
+      })
+    </script>
+
+    <!-- 页面 app -->
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+
+    <div id="app">
+      <m-custom-wheel-scroll :use-gesture="true" :is-mobile="true">
+        <div style="background-color: lightcoral">
+          <p>FIXME: </p>
+          <p>
+              <ol>
+                <li>
+                  PC 端使用手势的时候，如果双击页面，会导致页面进入“选中”状态，从而无法触发 mousedown 和 mouseup 事件，使得手动滚动效果失效，可以使用 user-select: none 来禁止页面选中，但是这样的话页面的内容就无法被编辑了。暂时来说还没找到合适的处理方法
+                </li>
+              </ol>
+          </p>
+          item1
+        </div>
+        <div style="background-color: lightblue">item2</div>
+        <div style="background-color: lightgray">item3</div>
+        <div style="background-color: lightgreen">item3</div>
+      </m-custom-wheel-scroll>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app',
+        data() {
+          return {}
+        },
+        methods: {}
+      })
+    </script>
+  </body>
+</html>
