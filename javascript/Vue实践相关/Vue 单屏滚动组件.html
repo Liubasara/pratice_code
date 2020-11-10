@@ -86,7 +86,7 @@
         </div>
         <ul id="list" v-if="pageLength">
           <li
-            v-for="(item) in new Array(pageLength).fill(1).map((a, index) => index)"
+            v-for="(item) in Array.from({ length: pageLength }, (v, i) => i)"
             :key="item"
             :class="[currentPage === item ? 'active' : '']"
             @click="handleLiClick(item)">
