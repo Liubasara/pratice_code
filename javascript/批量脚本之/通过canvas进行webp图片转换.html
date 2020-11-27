@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- 参考资料： https://ld246.com/article/1597659231460 -->
+    <meta charset="UTF-8" />
+    <title>图片在线webp/png/jpeg格式转换工具</title>
+    <meta name="description" content="图片在线转换工具：可以选择.webp .png .jpeg格式图片转换器" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="Cache-Control" content="no-transform,no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link href="res/style.css" type="text/css" rel="stylesheet" />
+    <style>
+      * {
+        outline: none;
+      }
+      .center {
+        min-width: 1100px;
+      }
+      .center h2 {
+        text-align: center;
+        height: 60px;
+        line-height: 60px;
+        border-bottom: 1px solid #ddd;
+      }
+      .fli {
+        color: #666;
+        font-size: 16px;
+        margin: 10px auto;
+        width: 1100px;
+      }
+      .fli .name {
+        font-size: 16px;
+        margin: 10px auto;
+        color: #1fbcb6;
+      }
+      .fli img {
+        max-width: 400px;
+      }
+      button {
+        border: 0;
+        background: #1fbcb6;
+        color: #fff;
+        padding: 8px 15px;
+        cursor: pointer;
+      }
+      textarea {
+        width: 100%;
+        max-width: 100%;
+        max-height: 500px;
+      }
+      button:hover {
+        background: #1b6d85;
+      }
+
+      .sdiv {
+        margin: 20px auto;
+      }
+      select {
+        height: 26px;
+        line-height: 26px;
+        border: 1px solid #888;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <div id="ad_line" style="text-align: center"></div>
+      <h2>图片在线webp/png/jpeg格式转换工具</h2>
+      <div class="fli">
+        <span>选择图片：</span><input type="file" id="inputimg" />
+        <div class="sdiv">
+          <span>选择格式：</span>
+          <select id="myselect">
+            <option value="1">webp格式</option>
+            <option value="2">jpeg格式</option>
+            <option value="3">png格式</option>
+          </select>
+        </div>
+
+        <button id="start">开始转换</button>
+      </div>
+      <div class="fli">
+        <p>预览：</p>
+        <img id="imgShow" src="" alt="" />
+      </div>
+      <div class="fli">
+        <h3>备注：</h3>
+        <p>1、转换后的图片请选择右键保存！</p>
+        <p>2、该工具目前仅支持转换为webp、jpeg、png的格式。如果是gif动态图片转换后不保留动态效果。</p>
+        <p>3、请使用高版本浏览器,推荐使用Chrome。</p>
+      </div>
+    </div>
+  </body>
+  <script>
+    /*事件*/
+    document.getElementById('start').addEventListener('click', function () {
+      getImg(function (image) {
+        var can = imgToCanvas(image),
+          imgshow = document.getElementById('imgShow')
+        imgshow.setAttribute('src', canvasToImg(can))
+      })
+    })
+    // 把image 转换为 canvas对象
+    function imgToCanvas(image) {
+      var canvas = document.createElement('canvas')
+      canvas.width = image.width
+      canvas.height = image.height
+      canvas.getContext('2d').drawImage(image, 0, 0)
+      return canvas
+    }
+    //canvas转换为image
+    function canvasToImg(canvas) {
+      var array = ['image/webp', 'image/jpeg', 'image/png'],
+        type = document.getElementById('myselect').value - 1
+      var src = canvas.toDataURL(array[type])
+      return src
+    }
+    //获取图片信息
+    function getImg(fn) {
+      var imgFile = new FileReader()
+      try {
+        imgFile.onload = function (e) {
+          var image = new Image()
+          image.src = e.target.result //base64数据
+          image.onload = function () {
+            fn(image)
+          }
+        }
+        imgFile.readAsDataURL(document.getElementById('inputimg').files[0])
+      } catch (e) {
+        console.log('请上传图片！' + e)
+      }
+    }
+  </script>
+</html>
