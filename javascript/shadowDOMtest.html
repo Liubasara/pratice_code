@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>仿 zhangxinxu 个人网站的 shadowDOM 包裹广告测试</title>
+  </head>
+  <body>
+    <div>
+      参考资料：<a
+        href="https://www.zhangxinxu.com/wordpress/2018/03/htmlunknownelement-html5-custom-elements/"
+        target="_blank"
+        >HTMLUnknownElement与HTML5自定义元素的故事</a
+      >
+    </div>
+    <script>
+      class ShadowDOMWrap extends HTMLElement {
+        constructor() {
+          super()
+        }
+        addShadowDOM(innerHTML) {
+          console.log(innerHTML)
+          // 以本标签为包裹创建 shadow 元素
+          const shadow = this.attachShadow({
+            // open 外部可访问（通过element.shadowRoot），closed则不能
+            mode: 'open'
+          })
+          const wrapper = document.createElement('div')
+          wrapper.innerHTML = innerHTML
+          shadow.appendChild(wrapper)
+        }
+        // 下面4个方法为常用生命周期
+        connectedCallback() {
+          console.log('自定义元素加入页面')
+          // 执行渲染更新
+        }
+        disconnectedCallback() {
+          // 本例子该生命周期未使用，占位示意
+          console.log('自定义元素从页面移除')
+        }
+        adoptedCallback() {
+          // 本例子该生命周期未使用，占位示意
+          console.log('自定义元素转移到新页面')
+        }
+        attributeChangedCallback(name, oldValue, newValue) {
+          console.log('自定义元素属性发生变化')
+          // 执行渲染更新
+        }
+        // 指定观察的属性，这样 attributeChangedCallback 才会起作用
+        static get observedAttributes() {
+          return ['rows']
+        }
+        // 设置直接 get/set rows属性的方法, 这样 attributeChangedCallback 才会起作用
+        get rows() {
+          return this._rows
+        }
+        set rows(v) {
+          this.setAttribute('rows', v)
+        }
+      }
+
+      // 生成 0 ~ 25 的随机数
+      const randomNum = () => Math.floor(Math.random() * 26)
+      // 生成 a ~ z 的随机字母
+      const randomLetter = () => String.fromCharCode(97 + randomNum())
+      // 生成随机自定义标签名
+      const tagName = `${randomLetter()}${randomLetter()}${randomLetter()}${randomLetter()}-${randomLetter()}${randomLetter()}${randomLetter()}${randomLetter()}`
+      // 定义随机自定义标签自定义元素
+      customElements.define(tagName, ShadowDOMWrap)
+
+      const shadowDOMWrapInstance = document.createElement(tagName)
+      shadowDOMWrapInstance.addShadowDOM('<style>.test { color: lightgray; }</style><p class="test">shadowDOM</p>')
+      document.body.appendChild(shadowDOMWrapInstance)
+    </script>
+  </body>
+</html>
