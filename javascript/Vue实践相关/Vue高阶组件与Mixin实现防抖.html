@@ -10,16 +10,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vue高阶组件与Mixin实现防抖</title>
-  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+  <script src="./vue.js"></script>
 </head>
 <body>
 
   <!-- button 组件 -->
 
   <script type="text/x-template" id="m-button">
-    <div>
-      <button v-bind="$attrs" @click="handleButtonClick">clickMeToConsole</button>
-    </div>
+    <button v-bind="$attrs" @click="handleButtonClick">clickMeToConsole</button>
   </script>
   <script>
     var mButtonConstructor = Vue.component('m-button', {
@@ -54,6 +52,7 @@
        * 这里我使用了abstract: true来创建一个抽象组件。
        * 我们常用的transition和keep-alive就是一个抽象组件。
        * 抽象组件是无状态的，同样也是“不存在的”，它自己并不会被渲染为实际的DOM，而是直接返回以及操作它的子元素。
+       * PS：但前提是只能返回一个单节点，不然的话还是要像下面这样手动生成一个 div 把元素包进去 -，-
        * **/
       abstract: true,
       props: {
