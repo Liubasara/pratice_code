@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吸顶效果</title>
+</head>
+<body>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: lightgoldenrodyellow;
+    }
+    p {
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    .sticky-ref {
+      height: 22px;
+      background-color: lightgray;
+    }
+    .is-fixed {
+      height: 22px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      margin-top: 0;
+      background-color: lightgray;
+    }
+  </style>
+  <div>
+    <div style="height: 50%;">content</div>
+    <p>参考资料：<a href="https://juejin.cn/post/6844903815041269774">5 种滚动吸顶实现方式的比较</a></p>
+    <p style="position: sticky; top: 0; background-color: aqua;">方式一，sticky</p>
+
+    <!-- 用一个等高的父元素将元素包裹起来可以防止页面在吸顶的时候由于 fixed 元素脱离文档流而闪烁，还有可能会导致下面的内容被挡住 -->
+    <div style="height: 22px; margin-top: 100px;">
+      <p class="sticky-ref">方式二，offsetTop 结合 onScroll 判断</p>
+    </div>
+
+    <div style="height: 1500px;">
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident distinctio amet!</p>
+    </div>
+  </div>
+  <script>
+    let stickyRefOffsetTop = 0
+    const stickyRef = document.querySelector('.sticky-ref')
+    stickyRefOffsetTop = stickyRef.offsetTop
+
+    window.onload = function () {
+      window.addEventListener('scroll', function () {
+        if (document.documentElement.scrollTop >= stickyRefOffsetTop) {
+          stickyRef.classList.add('is-fixed')
+        } else {
+          stickyRef.classList.remove('is-fixed')
+        }
+      })
+    }
+  </script>
+</body>
+</html>
