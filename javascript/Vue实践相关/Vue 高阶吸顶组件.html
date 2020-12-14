@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue 高阶吸顶组件</title>
+    <script src="./vue.js"></script>
+  </head>
+  <body>
+    <!-- 吸顶组件 -->
+    <style>
+      .is-fixed {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        margin-top: 0;
+        background-color: lightgray;
+      }
+    </style>
+
+    <script>
+      const mStickyTopConstructor = Vue.component('m-sticky-top', {
+        abstract: true,
+        data() {
+          return {
+            stickyTopOffsetTop: 0,
+            slotHeight: 0
+          }
+        },
+        mounted() {
+          const vnode =
+              this.$slots.default.length && this.$slots.default.length > 0
+                ? this.$slots.default[0]
+                : this.$slots.default
+          this.stickyTopOffsetTop = vnode.elm.offsetTop
+          this.slotHeight = vnode.elm.style.height
+        },
+        methods: {
+          handleScroll(e) {
+            const vnode =
+              this.$slots.default.length && this.$slots.default.length > 0
+                ? this.$slots.default[0]
+                : this.$slots.default
+            if (document.documentElement.scrollTop >= this.stickyTopOffsetTop) {
+              vnode.elm.classList.add('is-fixed')
+            } else {
+              vnode.elm.classList.remove('is-fixed')
+            }
+          }
+        },
+        render(h) {
+          const vnode =
+            this.$slots.default.length && this.$slots.default.length > 0 ? this.$slots.default[0] : this.$slots.default
+          window.addEventListener('scroll', this.handleScroll)
+          // 添加外包裹防止吸顶时 slots 脱离文档流，高度塌陷导致闪烁
+          return h(
+            'div',
+            {
+              style: {
+                height: this.slotHeight
+              }
+            },
+            [vnode]
+          )
+        }
+      })
+    </script>
+
+    <!-- 页面 app -->
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: lightgoldenrodyellow;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      p {
+        margin: 0;
+      }
+    </style>
+    <div id="app">
+      <div style="height: 50%">content</div>
+      <m-sticky-top>
+        <p style="height: 22px; background-color: lightgray">吸了个顶组件</p>
+      </m-sticky-top>
+      <div style="height: 1500px">
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
+          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
+          distinctio amet!
+        </p>
+      </div>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app'
+      })
+    </script>
+  </body>
+</html>
