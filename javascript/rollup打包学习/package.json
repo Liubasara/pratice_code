@@ -1,0 +1,14 @@
+{
+  "name": "rollup-learning",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "node build/index"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^2.34.2"
+  }
+}
