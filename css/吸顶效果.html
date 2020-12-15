@@ -19,6 +19,12 @@
     * {
       box-sizing: border-box;
     }
+    .scroll-wrap-ref {
+      margin: auto;
+      height: 500px;
+      width: 1000px;
+      overflow-y: scroll;
+    }
     .sticky-ref {
       height: 22px;
       background-color: lightgray;
@@ -32,8 +38,9 @@
       background-color: lightgray;
     }
   </style>
-  <div>
-    <div style="height: 50%;">content</div>
+  <div style="height: 300px;"></div>
+  <div class="scroll-wrap-ref">
+    <div style="height: 500px;">content</div>
     <p>参考资料：<a href="https://juejin.cn/post/6844903815041269774">5 种滚动吸顶实现方式的比较</a></p>
     <p>综合来看，其实只有以下两种是比较实用，覆盖面比较广的</p>
     <p style="position: sticky; top: 0; background-color: aqua;">方式一，sticky</p>
@@ -60,17 +67,37 @@
   </div>
   <script>
     let stickyRefOffsetTop = 0
+    const scrollWrapRef = document.querySelector('.scroll-wrap-ref')
     const stickyRef = document.querySelector('.sticky-ref')
     stickyRefOffsetTop = stickyRef.offsetTop
 
+    function addFixed (stickyRef) {
+      if (!stickyRef.classList.contains('is-fixed')) {
+        stickyRef.classList.add('is-fixed')
+        // 因为 Fixed 布局只能基于视口，所以需要使用 transform 来进行定位，同时使用 scrollWidth 来给 width 赋值
+        stickyRef.style.transform = `translate(0, ${scrollWrapRef.offsetTop}px)`
+        stickyRef.style.width = scrollWrapRef.scrollWidth + 'px'
+      }
+    }
+
+    function removeFixed (stickyRef) {
+      if (stickyRef.classList.contains('is-fixed')) {
+        stickyRef.classList.remove('is-fixed')
+        stickyRef.style.transform = ''
+        stickyRef.style.width = 'auto'
+      }
+    }
+
+    function handleScroll (scrollWrapRef, stickyRef, stickyRefOffsetTop, event) {
+      if (scrollWrapRef.scrollTop + scrollWrapRef.offsetTop >= stickyRefOffsetTop) {
+        addFixed(stickyRef)
+      } else {
+        removeFixed(stickyRef)
+      }
+    }
     window.onload = function () {
-      window.addEventListener('scroll', function () {
-        if (document.documentElement.scrollTop >= stickyRefOffsetTop) {
-          stickyRef.classList.add('is-fixed')
-        } else {
-          stickyRef.classList.remove('is-fixed')
-        }
-      })
+      window.addEventListener('scroll', handleScroll.bind(this, scrollWrapRef, stickyRef, stickyRefOffsetTop))
+      scrollWrapRef.addEventListener('scroll', handleScroll.bind(this, scrollWrapRef, stickyRef, stickyRefOffsetTop))
     }
   </script>
 </body>
