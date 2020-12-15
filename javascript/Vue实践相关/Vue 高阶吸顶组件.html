@@ -23,35 +23,62 @@
         abstract: true,
         data() {
           return {
+            scrollElm: null,
+            scrollWrapperTop: 0,
+            scrollWrapperScrollWidth: 0,
             stickyTopOffsetTop: 0,
-            slotHeight: 0
+            slotHeight: 0,
           }
         },
         mounted() {
+          if (this.$el.parentElement.scrollHeight > this.$el.parentElement.offsetHeight) {
+            this.scrollElm = this.$el.parentElement
+            this.scrollElm.addEventListener('scroll', this.handleScroll)
+          } else {
+            this.scrollElm = document.documentElement
+            window.addEventListener('scroll', this.handleScroll)
+          }
           const vnode =
-              this.$slots.default.length && this.$slots.default.length > 0
-                ? this.$slots.default[0]
-                : this.$slots.default
+            this.$slots.default.length && this.$slots.default.length > 0 ? this.$slots.default[0] : this.$slots.default
+          this.scrollWrapperTop = this.scrollElm.offsetTop
+          this.scrollWrapperScrollWidth = this.scrollElm.scrollWidth
           this.stickyTopOffsetTop = vnode.elm.offsetTop
           this.slotHeight = vnode.elm.style.height
         },
         methods: {
+          addFixed(vnode) {
+            if (!vnode.elm.classList.contains('is-fixed')) {
+              vnode.elm.classList.add('is-fixed')
+              // 因为 Fixed 布局只能基于视口，所以需要使用 transform 来进行定位，同时使用 scrollWidth 来给 width 赋值
+              vnode.elm.style.transform = `translate(0, ${this.scrollWrapperTop}px)`
+              vnode.elm.style.width = this.scrollWrapperScrollWidth + 'px'
+            }
+          },
+          removeFixed(vnode) {
+            if (vnode.elm.classList.contains('is-fixed')) {
+              vnode.elm.classList.remove('is-fixed')
+              vnode.elm.style.transform = ''
+              vnode.elm.style.width = 'auto'
+            }
+          },
           handleScroll(e) {
             const vnode =
               this.$slots.default.length && this.$slots.default.length > 0
                 ? this.$slots.default[0]
                 : this.$slots.default
-            if (document.documentElement.scrollTop >= this.stickyTopOffsetTop) {
-              vnode.elm.classList.add('is-fixed')
+            const { scrollTop } = this.scrollElm
+
+            if (scrollTop + this.scrollWrapperTop >= this.stickyTopOffsetTop) {
+              this.addFixed(vnode)
             } else {
-              vnode.elm.classList.remove('is-fixed')
+              this.removeFixed(vnode)
             }
           }
         },
         render(h) {
           const vnode =
             this.$slots.default.length && this.$slots.default.length > 0 ? this.$slots.default[0] : this.$slots.default
-          window.addEventListener('scroll', this.handleScroll)
+
           // 添加外包裹防止吸顶时 slots 脱离文档流，高度塌陷导致闪烁
           return h(
             'div',
@@ -81,73 +108,93 @@
       p {
         margin: 0;
       }
+      .overflow-wrap {
+        overflow-y: scroll;
+        height: 500px;
+        width: 1000px;
+        margin: auto;
+      }
     </style>
     <div id="app">
-      <div style="height: 50%">content</div>
-      <m-sticky-top>
-        <p style="height: 22px; background-color: lightgray">吸了个顶组件</p>
-      </m-sticky-top>
-      <div style="height: 1500px">
+      <!-- demo1 -->
+      <!-- <div style="height: 200px;"></div>
+        <m-sticky-top>
+          <p style="height: 22px; background-color: lightgray">吸了个顶组件</p>
+        </m-sticky-top>
+      <div style="height: 1200px;"></div> -->
+
+      <!-- demo2 -->
+      <div class="overflow-wrap">
         <p>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
           provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
           distinctio amet!
         </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet cupiditate
-          provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem provident
-          distinctio amet!
-        </p>
+        <m-sticky-top>
+          <p style="height: 22px; background-color: lightgray">吸了个顶组件</p>
+        </m-sticky-top>
+        <div>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, ullam vel officiis laboriosam amet
+            cupiditate provident pariatur aliquam voluptates libero recusandae corrupti quas odit! Ab perferendis autem
+            provident distinctio amet!
+          </p>
+        </div>
       </div>
     </div>
 
