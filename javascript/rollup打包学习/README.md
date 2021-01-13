@@ -6,6 +6,13 @@
 > - [使用 @rollup/plugin-babel 替代废弃的 rollup-plugin-label](https://www.npmjs.com/package/@rollup/plugin-babel)
 > - [babel-runtime使用与性能优化](https://juejin.cn/post/6844903615212027917)
 
+## 一些应该更新的插件替换
+
+- rollup-plugin-label -> [@rollup/plugin-babel](https://github.com/rollup/plugins/tree/master/packages/babel)
+- rollup-plugin-node-resolve -> [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve)
+- @rollup/plugin-commonjs -> [@rollup/plugin-commonjs](https://github.com/rollup/plugins/tree/master/packages/commonjs)
+- rollup-plugin-typescript -> [@rollup/plugin-typescript](https://github.com/rollup/plugins/tree/master/packages/typescript)
+
 ## babelHelpers 使用笔记
 
 babelHelpers 支持几个参数：'bundled' | 'runtime' | 'inline' | 'external'。
