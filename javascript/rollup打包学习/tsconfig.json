@@ -2,7 +2,7 @@
   "compilerOptions": {
     // "incremental": true,                   /* 增量编译 提高编译速度*/
     "target": "ES6" /* 编译目标ES版本*/,
-    "module": "esnext" /* 编译目标模块系统*/,
+    "module": "ESNext" /* 编译目标模块系统*/,
     // "sourceMap": true,
     // "lib": [],                             /* 编译过程中需要引入的库文件列表*/
     // "declaration": true /* 编译时创建声明文件 */,
@@ -30,7 +30,8 @@
     // "allowSyntheticDefaultImports": false /* 允许从没有设置默认导出的模块中默认导入，仅用于提示，不影响编译结果*/,
     "esModuleInterop": true, /* 允许编译生成文件时，在代码中注入工具类(__importDefault、__importStar)对ESM与commonjs混用情况做兼容处理*/
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noEmitHelpers": false
   },
   // "include": [/* 需要编译的文件 */ "src/**/*.ts", "typings/**/*.ts"],
   // "exclude": [/* 编译需要排除的文件 */ "node_modules/**"]
