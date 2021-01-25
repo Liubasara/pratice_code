@@ -1,0 +1,39 @@
+{
+  "name": "rollup-learning",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "npm-run-all clean build:production",
+    "dev": "npm-run-all clean build:watch",
+    "clean": "rimraf ./lib",
+    "build:production": "node build/index",
+    "build:watch": "npm run build --watch",
+    "build:test": "rollup -c -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/runtime": "^7.12.5",
+    "lodash": "^4.17.20"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-typescript": "^6.0.0",
+    "chalk": "^4.1.0",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.2.4",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.36.0",
+    "rollup-plugin-postcss": "^4.0.0",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.1.0",
+    "typescript": "^4.1.1"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    // "incremental": true,                   /* 增量编译 提高编译速度*/
+    "target": "ES6" /* 编译目标ES版本*/,
+    "module": "ESNext" /* 编译目标模块系统*/,
+    // "sourceMap": true,
+    // "lib": [],                             /* 编译过程中需要引入的库文件列表*/
+    // "declaration": true /* 编译时创建声明文件 */,
+    // "outDir": "lib" /* ts编译输出目录 */,
+    // "rootDir": "." /* ts编译根目录. */,
+    // "importHelpers": true /* 从tslib导入辅助工具函数(如__importDefault)*/,
+    "strict": false /* 严格模式开关 等价于noImplicitAny、strictNullChecks、strictFunctionTypes、strictBindCallApply等设置true */,
+    // "noUnusedLocals": true /* 未使用局部变量报错*/,
+    // "noUnusedParameters": true /* 未使用参数报错*/,
+    // "noImplicitReturns": true /* 有代码路径没有返回值时报错*/,
+    // "noFallthroughCasesInSwitch": true /* 不允许switch的case语句贯穿*/,
+    "moduleResolution": "node" /* 模块解析策略 */,
+    // // 模块声明之 paths 与 typeRoots 区别相关拓展阅读 https://github.com/microsoft/TypeScript/issues/22217
+    // "baseUrl": "." /* 要包含的模块声明文件路径列表*/,
+    // "paths": {
+    //   "*": ["./node_modules/@types", "./typings/*"]
+    // },
+
+    // "typeRoots": [
+    //   /* 要包含的全局变量类型声明文件路径列表*/
+    //   "./typings/*"
+    //   // "./node_modules/@types"
+    // ],
+    // // typescript import 相关拓展阅读 https://tasaid.com/blog/2019022017450863.html
+    // "allowSyntheticDefaultImports": false /* 允许从没有设置默认导出的模块中默认导入，仅用于提示，不影响编译结果*/,
+    "esModuleInterop": true, /* 允许编译生成文件时，在代码中注入工具类(__importDefault、__importStar)对ESM与commonjs混用情况做兼容处理*/
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmitHelpers": false
+  },
+  // "include": [/* 需要编译的文件 */ "src/**/*.ts", "typings/**/*.ts"],
+  // "exclude": [/* 编译需要排除的文件 */ "node_modules/**"]
+}
