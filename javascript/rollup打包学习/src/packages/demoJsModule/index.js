@@ -5,9 +5,9 @@ import '../demoCssModule/index.css'
 
 const demoModule = async function () {
   await Promise.resolve('demo')
-  console.log('Hi.I am a demo module.')
+  console.log('我不用嗓子说话')
   console.log(concat([1, 2, 3], [5], 5, 6, 7))
-  new Demo(56).sayMsg()
+  new Demo('夜神夜神~').sayMsg()
   new Item().sayHi()
 }
 

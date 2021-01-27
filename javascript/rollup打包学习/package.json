@@ -1,14 +1,19 @@
 {
   "name": "rollup-learning",
   "version": "1.0.0",
-  "description": "",
+  "description": "rollup-learning",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "npm-run-all clean build:production",
-    "dev": "npm-run-all clean build:watch",
+    "build:watch": "npm-run-all clean build:prodWatch",
+    "dev": "npm-run-all clean build:devWatch",
     "clean": "rimraf ./lib",
     "build:production": "node build/index",
-    "build:watch": "npm run build --watch",
+    "build:devWatch": "npm run build --dev --watch",
+    "build:prodWatch": "npm run build --watch",
     "build:test": "rollup -c -w"
   },
   "author": "",

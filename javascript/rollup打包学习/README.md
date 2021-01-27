@@ -28,3 +28,4 @@ babelHelpers 支持几个参数：'bundled' | 'runtime' | 'inline' | 'external'�
 ## 一些需要注意的点
 
 - 使用 rollup-plugin-postcss 的前提是需要先安装`yarn add postcss -D`
+- dev 模式用于 umd 模式的开发(会使用 SERVE PLUGIN 开启一个端口进行 index.html 的访问)，build:watch 模式用于 npm link 情况下作为库的调试开发。

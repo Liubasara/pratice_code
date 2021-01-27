@@ -12,7 +12,8 @@ const postcss = require('rollup-plugin-postcss')
 const { terser } = require('rollup-plugin-terser')
 const serve = require('rollup-plugin-serve')
 
-const IS_DEV = !!process.env.npm_config_watch
+const IS_DEV = !!process.env.npm_config_dev
+const IS_WATCH = !!process.env.npm_config_watch
 const buildOptionRecords = []
 
 const getFileSize = (code) => (code.length / 1024).toFixed(2) + 'KB' // 计算文件大小
@@ -59,21 +60,20 @@ const build = async function ({ inputPath = '', plugins = [], outputFilePath = '
   }
 
   if (IS_DEV) {
-    // 添加 dev 开发环境配置
-    outputOptions = {
-      ...outputOptions,
-      sourcemap: true // 添加 sourcemap
-    }
+    // babel bundled 模式下取消所有 external
     inputOptions.external = []
   } else {
+    // 非 dev 模式下添加代码混淆
     inputOptions.plugins.push(terser())
   }
+  ;(IS_DEV || IS_WATCH) && (outputOptions.sourcemap = true)
+
 
   const bundle = await rollup.rollup(inputOptions)
   const { output } = await bundle.write(outputOptions)
   await bundle.close()
   // 带 --watch 参数启动命令时，记录 input/output 用于给 watch 模式监听文件修改
-  IS_DEV && buildOptionRecords.push([inputOptions, outputOptions])
+  IS_WATCH && buildOptionRecords.push([inputOptions, outputOptions])
 
   return [outputPath, getFileSize(output[0].code)]
 }
@@ -97,7 +97,7 @@ const watch = function () {
     // 通过 serve Plugin 开启监听服务器
     watchOptions.plugins.push(serve({
       open: false,
-      port: 8888,
+      port: 18888,
       contentBase: ''
     }))
 
