@@ -1,4 +1,6 @@
 // 命令使用（MAC）：cat /Users/$USER/Library/Application\ Support/Google/Chrome/Default/Bookmarks | node test.js
+// Windows(.exe后缀名一定要加上否则会报错): cat ~/AppData/Local/Google/Chrome/User\ Data/Default/Bookmarks | node.exe test.js
+
 // ====================== From https://github.com/rongjiecomputer/chrome/blob/gh-pages/bookmark-recovery/index.html ==================
 function Bookmark(raw) {
   this.tree = JSON.parse(raw)
