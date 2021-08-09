@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      .parent {
+        display: -webkit-flexbox;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-flow: row wrap;
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+        -webkit-flex-pack: justify;
+        -ms-flex-pack: justify;
+        -webkit-justify-content: space-between;
+        justify-content: space-between;
+        margin: -5px; /* optional */
+        overflow: hidden; /* optional */
+      }
+
+      .parent div.item {
+        -webkit-flex: 0 0 240px;
+        -ms-flex: 0 0 240px;
+        flex: 0 0 240px;
+        margin: 5px;
+        background-color: lightblue;
+        border: 1px #000;
+      }
+      .blank {
+        flex: 0 0 240px;
+        margin: 0 5px;
+        border: 1px transparent;
+      }
+    </style>
+    <div class="parent">
+      <div class="item">a</div>
+      <div class="item">b</div>
+      <div class="item">c</div>
+      <div class="item">d</div>
+      <div class="item">e</div>
+      <div class="item">f</div>
+      <!-- 在下面添加与 item 数量相同的 div 确保任意数量的每一行都能对齐 -->
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+    </div>
+  </body>
+</html>
