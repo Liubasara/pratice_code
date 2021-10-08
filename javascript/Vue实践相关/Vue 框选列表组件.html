@@ -47,15 +47,14 @@
         /**
          * @param {Node} element
          * @param {Node} parent
-         **/
+         * */
         function isChildNodeOfParentNode(element, parent) {
           while (element.parentNode) {
             const parentNode = element.parentNode
             if (parentNode === parent) {
               return true
-            } else {
-              element = parentNode
             }
+            element = parentNode
           }
           return false
         }
@@ -63,14 +62,13 @@
          * @param {MouseEvent} event
          * @param {Node} element
          * @param {String} selector
-         **/
+         * */
         function isMouseDownOnItem(event, elm, selector) {
-          return Array.from(elm.querySelectorAll(selector)).some((element) => {
-            return (
+          return Array.from(elm.querySelectorAll(selector)).some(
+            (element) =>
               event.target === element ||
               isChildNodeOfParentNode(event.target, element)
-            )
-          })
+          )
         }
         /**
          * @param {MouseEvent} event
@@ -79,10 +77,10 @@
          * @param {Number} [options.limitAbsRange=60] 限制范围,按下鼠标后在此时间内再次移动超过该距离才算是触发框选
          * @return {Promise<boolean>} isFrameSelect
          */
-        function isFrameSelect(e, { limitTime = 60, limitAbsRange = 2 } = {}) {
+        function isFrameSelect(_e, { limitTime = 60, limitAbsRange = 2 } = {}) {
           const startTime = new Date().getTime()
-          const startPosX = e.pageX
-          const startPosY = e.pageY
+          const startPosX = _e.pageX
+          const startPosY = _e.pageY
           return new Promise((resolve) => {
             const move = (e) => {
               const curPosX = e.pageX
@@ -99,7 +97,7 @@
             document.addEventListener('mousemove', move)
             document.addEventListener(
               'mouseup',
-              (e) => {
+              () => {
                 document.removeEventListener('mousemove', move)
               },
               { once: true }
@@ -129,6 +127,13 @@
             ...getMouseDownPoint(x, y)
           }
         }
+        /**
+         * 添加被选中 class
+         * @param {Elemnet} elm
+         */
+        function needSelect(elm) {
+          return !elm.dataset.noFrameSelect
+        }
         /* --------------- helper end --------------*/
         const MOVE_MODE = 'move' // 移动时判断是否框选
         const MOUSE_UP_MODE = 'mouseup' // 鼠标提起时判断是否框选
@@ -136,7 +141,7 @@
          * @param {Object} [options={}] 选项
          * @param {Element} [options.elm=null] 包裹元素
          * @param {String} [options.itemSelector=''] 被框选元素选择器
-         **/
+         * */
         function _FrameSelection({
           selectMode = MOVE_MODE,
           container = null,
@@ -188,17 +193,7 @@
           this.removeTextSelectionInMove = removeTextSelectionInMove
           this.initEvents(this.container)
         }
-        _FrameSelection.prototype.initEvents = initEvents
-        _FrameSelection.prototype.onMouseDown = onMouseDown
-        _FrameSelection.prototype.onDocumentMouseMove = onDocumentMouseMove
-        _FrameSelection.prototype.onDocumentMouseUp = onDocumentMouseUp
-        _FrameSelection.prototype.clearSelectedItems = clearSelectedItems
-        _FrameSelection.prototype.isMoveMode = isMoveMode
-        _FrameSelection.prototype.isMouseUpMode = isMouseUpMode
-        _FrameSelection.prototype.checkItems = checkItems
-        _FrameSelection.prototype.clearFrameStatus = clearFrameStatus
-        _FrameSelection.prototype.isSelectItem = isSelectItem
-        _FrameSelection.prototype.destroy = destroy
+
         /**
          * @param {Element} container
          * */
@@ -314,7 +309,7 @@
         /**
          * @param {MouseEvent} event
          * */
-        function onDocumentMouseUp(event) {
+        function onDocumentMouseUp() {
           if (!this.isMouseDown) return
           if (this.isMouseUpMode()) {
             this.checkItems()
@@ -333,7 +328,7 @@
         }
         function clearSelectedItems() {
           this.selectedItems.forEach((item) => {
-            item.classList.remove(this.itemActiveClass)
+            needSelect(item) && item.classList.remove(this.itemActiveClass)
           })
           if (this.onSelectedItemsChange && this.selectedItems.length > 0) {
             this.selectedItems = []
@@ -357,11 +352,11 @@
             if (this.isCtrl) {
               return isInitSelectedItem ? !isSelect : isSelect
             }
-            return isSelect
+            return isSelect && needSelect(item)
           })
 
           this.selectedItems.forEach((item) => {
-            if (!~selectedItems.indexOf(item)) {
+            if (!~selectedItems.indexOf(item) && needSelect(item)) {
               changed = true
               item.classList.remove(this.itemActiveClass)
             }
@@ -370,7 +365,10 @@
           if (changed || selectedItems.length !== this.selectedItems.length) {
             this.selectedItems = selectedItems
             selectedItems.forEach((item) => {
-              if (!item.classList.contains(this.itemActiveClass)) {
+              if (
+                !item.classList.contains(this.itemActiveClass) &&
+                needSelect(item)
+              ) {
                 item.classList.add(this.itemActiveClass)
               }
             })
@@ -410,15 +408,25 @@
             bounds.height / 2 + rubberbandCellBounds.height / 2
           if (xIntersect && yIntersect) {
             return true
-          } else {
-            return false
           }
+          return false
         }
         function destroy() {
           this.clearEvents()
           this.clearFrameStatus()
           this.clearSelectedItems()
         }
+        _FrameSelection.prototype.initEvents = initEvents
+        _FrameSelection.prototype.onMouseDown = onMouseDown
+        _FrameSelection.prototype.onDocumentMouseMove = onDocumentMouseMove
+        _FrameSelection.prototype.onDocumentMouseUp = onDocumentMouseUp
+        _FrameSelection.prototype.clearSelectedItems = clearSelectedItems
+        _FrameSelection.prototype.isMoveMode = isMoveMode
+        _FrameSelection.prototype.isMouseUpMode = isMouseUpMode
+        _FrameSelection.prototype.checkItems = checkItems
+        _FrameSelection.prototype.clearFrameStatus = clearFrameStatus
+        _FrameSelection.prototype.isSelectItem = isSelectItem
+        _FrameSelection.prototype.destroy = destroy
         return _FrameSelection
       })()
     </script>
@@ -480,8 +488,14 @@
         },
         setup(props) {
           const selectModeRef = toRef(props, 'selectMode')
-          const customContainerSelectorRef = toRef(props, 'customContainerSelector')
-          const removeTextSelectionInMoveRef = toRef(props, 'removeTextSelectionInMove')
+          const customContainerSelectorRef = toRef(
+            props,
+            'customContainerSelector'
+          )
+          const removeTextSelectionInMoveRef = toRef(
+            props,
+            'removeTextSelectionInMove'
+          )
           const selectWrap = ref()
           let frameSelection = null
           const generateFrameSelection = () => {
@@ -511,7 +525,8 @@
             frameSelection && (frameSelection.selectMode = val)
           })
           watch(removeTextSelectionInMoveRef, (val) => {
-            frameSelection && (frameSelection.removeTextSelectionInMoveRef = val)
+            frameSelection &&
+              (frameSelection.removeTextSelectionInMoveRef = val)
           })
           watch(customContainerSelectorRef, () => {
             if (frameSelection) {
@@ -551,6 +566,8 @@
         border-radius: 4px;
         background-color: lightblue;
         transition: background-color 500ms;
+        color: rgb(242, 233, 205);
+        user-select: none;
       }
       #app .blank {
         flex: 0 1 16.67%;
@@ -563,10 +580,13 @@
     </style>
     <div id="app">
       <p>已选 {{ selectedItemsRef.length }} 项</p>
-      <button type="button" @click="addItem">
+      <button type="button" @click="addItem()">
         添加 item, 目前共 {{ itemsRef.length }} 个
       </button>
       <button type="button" @click="reduceItem">减少 item</button>
+      <button type="button" @click="addItem(true)">
+        添加无法被框选的 item
+      </button>
       <p>超过 {{ ITEM_NUM }} 个 selectMode 切换为 mouseup, 默认为 move</p>
       <button @click="changeContainerToBody">切换自定义选框</button>
       <p>当前选框范围为 {{ customContainerRef || '默认' }}</p>
@@ -582,7 +602,10 @@
             :class="['frame-select-item', { active: item.selected }]"
             ref="itemRefs"
             :data-raw-key="item.value"
-          ></div>
+            :data-no-frame-select="item.noFrameSelect || undefined"
+          >
+            {{ item.noFrameSelect ? '无法被框选' : '可被框选' }}
+          </div>
           <!-- 占位符 -->
           <div
             v-for="item in new Array(20).fill(-1).map((item, idx) => idx)"
@@ -599,7 +622,7 @@
         setup(props) {
           const itemRefs = ref([])
           const itemsRef = ref(
-            new Array(ITEM_NUM)
+            new Array(ITEM_NUM - 2)
               .fill(-1)
               .map((i, idx) => ({ value: idx, selected: false }))
           )
@@ -628,8 +651,18 @@
             })
           }
 
-          const addItem = () => {
-            itemsRef.value.push({ value: itemsRef.length, selected: false })
+          const addItem = (noFrameSelect = false) => {
+            noFrameSelect
+              ? itemsRef.value.unshift({
+                  value: itemsRef.length,
+                  selected: false,
+                  noFrameSelect
+                })
+              : itemsRef.value.push({
+                  value: itemsRef.length,
+                  selected: false,
+                  noFrameSelect
+                })
             clearSelectedItems()
           }
           const reduceItem = () => {
