@@ -154,7 +154,8 @@
           limitTime = 60,
           limitAbsRange = 2,
           useCtrl = true,
-          removeTextSelectionInMove = false
+          removeTextSelectionInMove = false,
+          forbidRightClick = true
         } = {}) {
           this.selectMode = selectMode
           if (container instanceof Node) {
@@ -191,6 +192,7 @@
             console.error(e)
           }
           this.removeTextSelectionInMove = removeTextSelectionInMove
+          this.forbidRightClick = forbidRightClick; // 禁止右键响应选框
           this.initEvents(this.container)
         }
 
@@ -217,6 +219,11 @@
          * @param {MouseEvent} event
          * */
         async function onMouseDown(event) {
+          if (event.button === 2) {
+            if (this.forbidRightClick) {
+              return;
+            }
+          }
           if (event.ctrlKey && this.useCtrl) {
             this.isCtrl = true
             event.target.addEventListener(
@@ -484,6 +491,10 @@
           removeTextSelectionInMove: {
             type: Boolean,
             default: false
+          },
+          forbidRightClick: {
+            type: Boolean,
+            default: true
           }
         },
         setup(props) {
@@ -515,7 +526,8 @@
               limitTime: props.limitTime,
               limitAbsRange: props.limitAbsRange,
               onSelectedItemsChange: props.onSelectedItemsChange,
-              removeTextSelectionInMove: props.removeTextSelectionInMove
+              removeTextSelectionInMove: props.removeTextSelectionInMove,
+              forbidRightClick: props.forbidRightClick
             })
           }
           onMounted(() => {
