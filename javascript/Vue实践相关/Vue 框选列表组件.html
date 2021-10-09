@@ -228,6 +228,8 @@
               { once: true }
             )
           }
+          // 清除上次选中的文件
+          !this.isCtrl && this.clearSelectedItems()
           let initFrameSelect = true
           // 判断是否点中了 item
           if (isMouseDownOnItem(event, this.container, this.itemSelector)) {
@@ -242,8 +244,6 @@
               event.y - containerDOMRect.top
             )
             this.initSelectedItems = this.selectedItems
-            // 清除上次选中的文件
-            !this.isCtrl && this.clearSelectedItems()
             // 删除浏览器文字选择，避免文字拖动问题
             window.getSelection().removeAllRanges()
             if (this.selectFrame) {
