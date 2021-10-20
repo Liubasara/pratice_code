@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue 框选列表组件</title>
+    <script src="./vue.js"></script>
+    <script src="./vue-composition-api.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #eee;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const MOCK_DATA = [
+        {
+          id: 1,
+          name: '广东省',
+          children: [
+            {
+              id: 11,
+              name: '深圳',
+              children: [
+                {
+                  id: 111,
+                  name: '宝安',
+                  children: [
+                    {
+                      id: 1111,
+                      name: '西乡',
+                      children: [
+                        {
+                          id: 11111,
+                          name: '坪洲',
+                          children: []
+                        },
+                        {
+                          id: 11112,
+                          name: '灵芝',
+                          children: []
+                        }
+                      ]
+                    },
+                    {
+                      id: 1112,
+                      name: '南山',
+                      children: [
+                        {
+                          id: 11121,
+                          name: '科技园',
+                          children: []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  id: 112,
+                  name: '福田',
+                  children: []
+                }
+              ]
+            },
+            {
+              id: 12,
+              name: '广州',
+              children: [
+                {
+                  id: 122,
+                  name: '白云区',
+                  children: [
+                    {
+                      id: 1222,
+                      name: '白云区',
+                      children: []
+                    }
+                  ]
+                },
+                {
+                  id: 122,
+                  name: '珠海区',
+                  children: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: '湖南省',
+          children: []
+        }
+      ]
+    </script>
+    <script>
+      /**
+       * import
+       */
+      const {
+        ref,
+        onMounted,
+        toRef,
+        computed,
+        watch,
+        onBeforeUnmount
+      } = VueCompositionAPI
+    </script>
+
+    <script type="text/x-template" id="tree">
+      <div>
+        <div v-for="(item) in props.data" :key="item.id + item.name">
+          <p>{{item.name}}</p>
+          <p v-if="item.children && item.children.length > 0" style="margin-left: 20px;">
+            <tree :data="item.children"></tree>
+          </p>
+        </div>
+      </div>
+    </script>
+    <script>
+      const treeConstructor = Vue.component('tree', {
+        template: '#tree',
+        props: {
+          data: {
+            type: Array,
+            default: () => []
+          }
+        },
+        setup(props) {
+          return {
+            props
+          }
+        }
+      })
+    </script>
+
+    
+
+    <div id="app">
+      <button type="button" @click="refresh">刷新</button>
+      <tree :data="mockData"></tree>
+    </div>
+    <script>
+      new Vue({
+        el: '#app',
+        setup() {
+          const mockData = ref(MOCK_DATA)
+          const refresh = () => {}
+          return {
+            mockData,
+            refresh
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
