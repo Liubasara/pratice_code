@@ -1,0 +1,42 @@
+export default class Stack {
+  constructor(params) {
+    const { objUpdateHelper = () => {} } = params || {}
+    this.list = [
+      {
+        title: 1
+      }
+    ]
+    this.objUpdateHelper = objUpdateHelper
+  }
+  updateList() {
+    const list = [
+      {
+        title: 1
+      },
+      {
+        title: 2
+      },
+      {
+        title: 3
+      }
+    ]
+    this.list = list
+    this.objUpdateHelper(this, 'list', list)
+    
+  }
+  updateListInfo() {
+    const labels = [
+      { labelTitle: 'label1' },
+      { labelTitle: 'label2' },
+      { labelTitle: 'label3' }
+    ]
+    this.list[0]['labels'] = labels
+    this.objUpdateHelper(this.list[0], 'labels', labels)
+  }
+  refreshList() {
+    this.list = JSON.parse(JSON.stringify(this.list))
+  }
+  accept(visitor) {
+    visitor.doForStack(this)
+  }
+}

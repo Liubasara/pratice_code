@@ -1,0 +1,15 @@
+{
+  "name": "@custom-lb-ui/check-stack",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "srcEntry": "src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/composition-api": "^1.4.3",
+    "vue": "^2.6.12"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "414f518833b1f953567a49d2dd49e06c66d9bed7"
+}
