@@ -6,15 +6,23 @@
 /**
   关键点：转换为求差问题，使用一个 Map 型的结构来记录对应数字与其对应索引值。
 */
-let twoSum = function (nums, target) {
-  const diffs = {}
-  const len = nums.length
-  for (let i=0;i<len;i++) {
-    if (diffs[target - nums[i]] !== undefined) {
-      return [diffs[target - nums[i]], i]
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+var twoSum = function (nums, target) {
+  const numsMap = nums.reduce((pre, cur, idx) => {
+    pre[cur] = idx
+    return pre
+  }, {})
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i]
+    const targetNum = target - num
+    if (numsMap[targetNum] !== undefined && i !== numsMap[targetNum]) {
+      return [i, numsMap[targetNum]]
     }
-    diffs[nums[i]]=i
   }
 }
 
-twoSum([2,7,11,15], 9)
+console.log(twoSum([2, 7, 11, 15], 9))
