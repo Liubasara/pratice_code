@@ -30,20 +30,20 @@
  */
 var maxDepth = function (root) {
   if (!root) return 0
-  let max = 1
+  let max = 0
   let curr = 0
   function dfs(node) {
-    curr += 1
+    curr++
     if (curr > max) {
       max = curr
     }
     if (node.left) {
       dfs(node.left)
-      curr -= 1
+      curr--
     }
     if (node.right) {
       dfs(node.right)
-      curr -= 1
+      curr--
     }
   }
   dfs(root)
@@ -98,11 +98,10 @@ var minDepth = function (root) {
   if (!root) return 0
   let min = 0
   function bfs(node) {
-    const stack = [{ node, depth: 1 }]
-    while (stack.length !== 0) {
-      const tmp = stack.shift()
-      const curNode = tmp.node
-      const curDepth = tmp.depth
+    const queue = [{ node, depth: 1 }]
+    while (queue.length !== 0) {
+      const tmp = queue.shift()
+      const { node: curNode, depth: curDepth } = tmp
       if (curDepth > min) {
         min = curDepth
       }
@@ -110,10 +109,10 @@ var minDepth = function (root) {
         return
       }
       if (curNode.left) {
-        stack.push({ node: curNode.left, depth: curDepth + 1 })
+        queue.push({ node: curNode.left, depth: curDepth + 1 })
       }
       if (curNode.right) {
-        stack.push({ node: curNode.right, depth: curDepth + 1 })
+        queue.push({ node: curNode.right, depth: curDepth + 1 })
       }
     }
   }
