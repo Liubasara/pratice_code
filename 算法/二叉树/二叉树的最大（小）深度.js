@@ -101,18 +101,18 @@ var minDepth = function (root) {
     const queue = [{ node, depth: 1 }]
     while (queue.length !== 0) {
       const tmp = queue.shift()
-      const { node: curNode, depth: curDepth } = tmp
-      if (curDepth > min) {
-        min = curDepth
+      const { node: theNode, depth: theDepth } = tmp
+      if (theDepth > min) {
+        min = theDepth
       }
-      if (!curNode.left && !curNode.right) {
-        return
+      if (!theNode.left && !theNode.right) {
+        return min
       }
-      if (curNode.left) {
-        queue.push({ node: curNode.left, depth: curDepth + 1 })
+      if (theNode.left) {
+        queue.push({ node: theNode.left, depth: theDepth + 1 })
       }
-      if (curNode.right) {
-        queue.push({ node: curNode.right, depth: curDepth + 1 })
+      if (theNode.right) {
+        queue.push({ node: theNode.right, depth: theDepth + 1 })
       }
     }
   }
