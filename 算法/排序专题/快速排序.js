@@ -1,29 +1,33 @@
-function quickSortOneFunc(arr, left = 0, right = arr.length - 1) {
-  const len = arr.length
-  if (len <= 1) return arr
-  let p1 = left
-  let p2 = right
-  const pivot = left + Math.floor((right - left) / 2)
-  const pivotVal = arr[pivot]
-  while (p1 <= p2) {
-    while (arr[p1] < pivotVal) {
-      p1++
+function quickSortOneFunc(arr) {
+  const arrLen = arr.length
+  const left = 0
+  const right = arrLen - 1
+  function start(arr, left, right) {
+    const pointIdx = Math.floor((left + right) / 2)
+    const pointVal = arr[pointIdx]
+    let p1 = left
+    let p2 = right
+    while (p1 <= p2) {
+      while (arr[p1] < pointVal && p1 <= p2) {
+        p1++
+      }
+      while (arr[p2] > pointVal && p1 <= p2) {
+        p2--
+      }
+      if (p1 <= p2) {
+        ;[arr[p1], arr[p2]] = [arr[p2], arr[p1]]
+        p1++
+        p2--
+      }
     }
-    while (arr[p2] > pivotVal) {
-      p2--
+    if (p1 > left + 1) {
+      start(arr, left, p1 - 1)
     }
-    if (p1 <= p2) {
-      ;[arr[p1], arr[p2]] = [arr[p2], arr[p1]]
-      p1++
-      p2--
+    if (p1 < right) {
+      start(arr, p1, right)
     }
   }
-  if (p1 - 1 > left) {
-    quickSortOneFunc(arr, left, p1 - 1)
-  }
-  if (p1 < right) {
-    quickSortOneFunc(arr, p1, right)
-  }
+  start(arr, left, right)
   return arr
 }
 
@@ -60,7 +64,7 @@ function quickSort(arr, left = 0, right = arr.length - 1) {
 function partition(arr, left, right) {
   let p1 = left,
     p2 = right
-  // 选取数组中间的值作为基准值可以让最终 p1 指针落在其上，从而刚好达到左右两边分组的效果
+  // 选取数组中间的值作为基准值可以让最终 p1 指针落在其下一个元素上，从而刚好达到左右两边分组的效果
   const pivotValue = arr[Math.floor((right - left) / 2) + left]
   while (p1 <= p2) {
     // 左指针所指元素若不大于基准值，则右移左指针
