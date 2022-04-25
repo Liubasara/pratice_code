@@ -1,17 +1,15 @@
 function quickSortOneFunc(arr) {
   const arrLen = arr.length
-  const left = 0
-  const right = arrLen - 1
-  function start(arr, left, right) {
+  function start(left = 0, right = arrLen - 1) {
     const pointIdx = Math.floor((left + right) / 2)
-    const pointVal = arr[pointIdx]
+    const pointValue = arr[pointIdx]
     let p1 = left
     let p2 = right
     while (p1 <= p2) {
-      while (arr[p1] < pointVal && p1 <= p2) {
+      while (arr[p1] < pointValue && p1 <= p2) {
         p1++
       }
-      while (arr[p2] > pointVal && p1 <= p2) {
+      while (arr[p2] > pointValue && p1 <= p2) {
         p2--
       }
       if (p1 <= p2) {
@@ -21,13 +19,13 @@ function quickSortOneFunc(arr) {
       }
     }
     if (p1 > left + 1) {
-      start(arr, left, p1 - 1)
+      start(left, p1 - 1)
     }
     if (p1 < right) {
-      start(arr, p1, right)
+      start(p1, right)
     }
   }
-  start(arr, left, right)
+  start()
   return arr
 }
 
@@ -85,4 +83,4 @@ function partition(arr, left, right) {
   return p1
 }
 
-console.log(quickSort([0, 27, 99, 6, 38, 1, 9]))
+console.log(quickSortOneFunc([0, 27, 99, 6, 38, 1, 9]))
