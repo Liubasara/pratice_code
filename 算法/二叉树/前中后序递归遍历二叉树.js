@@ -1,7 +1,7 @@
 /**
  定义 start
 */
-function BinarytreeNode (val) {
+function BinarytreeNode(val) {
   this.val = val
   this.left = null
   this.right = null
@@ -48,25 +48,7 @@ function preorder(root) {
 preorder(rootNode)
 
 // 非递归遍历版
-function preorderTraversal1 (root) {
-  let tmp = root
-  let stack = []
-  while (stack.length !== 0 || tmp !== null) {
-    if (tmp !== null) {
-      stack.push(tmp)
-      console.log(`当前非递归遍历前序遍历的节点值为${tmp.val}`)
-      tmp = tmp.left
-    } else {
-      let node = stack.pop()
-      tmp = node.right
-    }
-  }
-}
-
-preorderTraversal1(rootNode)
-
-// 更好理解的非递归遍历版
-function preorderTraversal2 (root) {
+function preorderTraversal1(root) {
   const stack = []
   stack.push(root)
   while (stack.length > 0) {
@@ -81,6 +63,34 @@ function preorderTraversal2 (root) {
   }
 }
 
+preorderTraversal1(rootNode)
+
+// 更好理解的非递归遍历版（颜色标记法）
+function preorderTraversal2(root) {
+  const res = []
+  function start(node) {
+    if (!node) return
+    const stack = [{ node, visited: false }]
+    while (stack.length !== 0) {
+      const tmp = stack.pop()
+      const { node: theNode, visited: theVisited } = tmp
+      if (!theVisited) {
+        if (theNode.right) {
+          stack.push({ node: theNode.right, visited: false })
+        }
+        if (theNode.left) {
+          stack.push({ node: theNode.left, visited: false })
+        }
+        stack.push({ node: theNode, visited: true })
+      } else {
+        res.push(theNode.val)
+      }
+    }
+  }
+  start(root)
+  return res
+}
+
 preorderTraversal2(rootNode)
 
 /**============= 中序遍历 ====================*/
@@ -93,19 +103,30 @@ function inorder(root) {
 
 inorder(rootNode)
 
-// 非递归遍历版
-function inorderTraversal (root) {
-  const stack = []
-  let tmp = root
-  while (stack.length > 0 || !!tmp) {
-    while (!!tmp) {
-      stack.push(tmp)
-      tmp = tmp.left
+// 非递归遍历版(颜色标记法)
+function inorderTraversal(root) {
+  const res = []
+  function start(node) {
+    if (!node) return
+    const stack = [{ node, visited: false }]
+    while (stack.length !== 0) {
+      const tmp = stack.pop()
+      const { node: theNode, visited: theVisited } = tmp
+      if (!theVisited) {
+        if (theNode.right) {
+          stack.push({ node: theNode.right, visited: false })
+        }
+        stack.push({ node: theNode, visited: true })
+        if (theNode.left) {
+          stack.push({ node: theNode.left, visited: false })
+        }
+      } else {
+        res.push(theNode.val)
+      }
     }
-    const node = stack.pop()
-    console.log(node.val)
-    tmp = node.right
   }
+  start(root)
+  return res
 }
 
 inorderTraversal(rootNode)
@@ -116,35 +137,34 @@ function postorder(root) {
   postorder(root.left)
   postorder(root.right)
   console.log(`当前后序遍历的节点值为${root.val}`)
-  
 }
 
 postorder(rootNode)
 
-// 非递归遍历版
-function postorderTraversal (root) {
-  let stack = []
-  let res = []
-  stack.push(root)
-  while (stack.length) {
-    let node = stack.pop()
-    res.unshift(node.val)
-    
-    if (node.left) {
-      stack.push(node.left)
-    }
-    if (node.right) {
-      stack.push(node.right)
+// 非递归遍历版（颜色标记法）
+function postorderTraversal(root) {
+  const res = []
+  function start(node) {
+    if (!node) return
+    const stack = [{ node, visited: false }]
+    while (stack.length !== 0) {
+      const tmp = stack.pop()
+      const { node: theNode, visited: theVisited } = tmp
+      if (!theVisited) {
+        stack.push({ node: theNode, visited: true })
+        if (theNode.right) {
+          stack.push({ node: theNode.right, visited: false })
+        }
+        if (theNode.left) {
+          stack.push({ node: theNode.left, visited: false })
+        }
+      } else {
+        res.push(theNode.val)
+      }
     }
   }
-  res.forEach(item => {
-    console.log(`当前非递归遍历后序遍历的节点值为${item}`)
-  })
+  start(root)
   return res
 }
 
 postorderTraversal(rootNode)
-
-
-
-
