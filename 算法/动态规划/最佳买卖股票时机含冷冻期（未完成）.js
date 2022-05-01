@@ -32,7 +32,7 @@ var maxProfit = function (prices) {
   // 0: 持有股票  1: 未持有股票，处于冷冻期 2: 未持有股票，未处于冷冻期
   // dp[i] 代表第i天
   dp[0][0] = -prices[0]
-  dp[0][1] = 0
+  dp[0][1] = -Infinity
   dp[0][2] = 0
   for (let i = 1; i < pricesLen; i++) {
     const priceI = prices[i]
