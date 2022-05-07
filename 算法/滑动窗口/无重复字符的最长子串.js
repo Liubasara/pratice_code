@@ -23,6 +23,7 @@
 */
 
 /**
+ * 题解：https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/solution/hua-dong-chuang-kou-by-powcai/
  * @param {string} s
  * @return {number}
  */
