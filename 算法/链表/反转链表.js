@@ -28,14 +28,14 @@ var reverseList = function (head) {
   if (!head) return null
   let lastNode
   function dfs(node) {
-    if (node.next) {
-      dfs(node.next) // 递归进入下一个节点
-      // 出栈时 tmp 为倒数第二个结点，tmp.next 为尾结点
-      node.next.next = node // 进行反转，将倒数第一个节点的 next 指针指向倒数第二个
-    } else {
+    if (!node.next) {
       // 尾结点
       lastNode = node
+      return
     }
+    dfs(node.next) // 递归进入下一个节点
+    // 出栈时 tmp 为倒数第二个结点，tmp.next 为尾结点
+    node.next.next = node // 进行反转，将倒数第一个节点的 next 指针指向倒数第二个
   }
   dfs(head)
   head.next = null // 原来的头结点现在是尾结点，指针需要指向 null
