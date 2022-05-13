@@ -24,26 +24,37 @@
  * @return {number}
  */
 function numIslands (grid) {
-  let row = grid.length
-  if (row < 1) return 0
-  let ceil = grid[0].length
-  let countIslandNum = 0
-  for (let i = 0; i < row; i++) {
-    for (let j = 0; j < ceil; j++) {
-      if (grid[i][j] === '1') {
-        countIslandNum++
-        dfs(grid, i, j) // 将周围相连的陆地尽可能的打上标记，这样在遍历到周围元素的时候 countIslandNum 就不会 +1 了
-      }
+  const height = grid.length
+  const width = grid[0].length
+  let num = 0
+  function dfs(y, x) {
+    if (grid[y][x] === '0') {
+      return
+    }
+    // 消消乐，将该片土地销毁以防重复计数
+    grid[y][x] = '0'
+    if (grid[y - 1] && grid[y - 1][x]) {
+      dfs(y - 1, x)
+    }
+    if (grid[y + 1] && grid[y + 1][x]) {
+      dfs(y + 1, x)
+    }
+    if (grid[y] && grid[y][x - 1]) {
+      dfs(y, x - 1)
+    }
+    if (grid[y] && grid[y][x + 1]) {
+      dfs(y, x + 1)
     }
   }
-  function dfs (grid, i, j) {
-    grid[i][j] = '2' // 已访问
-    if (i + 1 < row && grid[i + 1][j] === '1') dfs(grid, i + 1, j)
-    if (i - 1 >= 0 && grid[i - 1][j] === '1') dfs(grid, i - 1, j)
-    if (j + 1 < ceil && grid[i][j + 1] === '1') dfs(grid, i, j + 1)
-    if (j - 1 >= 0 && grid[i][j - 1] === '1') dfs(grid, i, j - 1)  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y][x] === '1') {
+        num++
+      }
+      dfs(y, x)
+    }
   }
-  return countIslandNum
+  return num
 }
 
 console.log(numIslands([
