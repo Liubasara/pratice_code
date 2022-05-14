@@ -40,8 +40,7 @@ var islandPerimeter = function (grid) {
     let meter = 0
     grid[y][x] = 2
     if (grid[y - 1]) {
-      const gridElm = grid[y - 1][x]
-      if (gridElm === 0) {
+      if (grid[y - 1][x] === 0) {
         meter++
       }
       dfs(y - 1, x)
@@ -50,8 +49,7 @@ var islandPerimeter = function (grid) {
     }
 
     if (grid[y + 1]) {
-      const gridElm = grid[y + 1][x]
-      if (gridElm === 0) {
+      if (grid[y + 1][x] === 0) {
         meter++
       }
       dfs(y + 1, x)
@@ -60,8 +58,7 @@ var islandPerimeter = function (grid) {
     }
 
     if (grid[y][x + 1] !== undefined) {
-      const gridElm = grid[y][x + 1]
-      if (gridElm === 0) {
+      if (grid[y][x + 1] === 0) {
         meter++
       }
       dfs(y, x + 1)
@@ -70,8 +67,7 @@ var islandPerimeter = function (grid) {
     }
 
     if (grid[y][x - 1] !== undefined) {
-      const gridElm = grid[y][x - 1]
-      if (gridElm === 0) {
+      if (grid[y][x - 1] === 0) {
         meter++
       }
       dfs(y, x - 1)
