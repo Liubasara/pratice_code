@@ -43,7 +43,7 @@
 var minDistance = function (word1, word2) {
   const word1Len = word1.length
   const word2Len = word2.length
-  if (!word1Len && !word2Len) return 0
+  if (!word1Len || !word2Len) return word1Len || word2Len
   const dp = []
   for (let i = 0; i < word1Len + 1; i++) {
     dp[i] = []
