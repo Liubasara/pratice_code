@@ -65,20 +65,14 @@ function threeSum(nums) {
         while (p1 < p2 && nums[p1] === nums[p1 + 1]) {
           p1++
         }
-        p1++
         while (p1 < p2 && nums[p2] === nums[p2 - 1]) {
           p2--
         }
+        p1++
         p2--
       } else if (numI + numP1 + numP2 < 0) {
-        while (p1 < p2 && nums[p1] === nums[p1 + 1]) {
-          p1++
-        }
         p1++
       } else if (numI + numP1 + numP2 > 0) {
-        while (p1 < p2 && nums[p2] === nums[p2 - 1]) {
-          p2--
-        }
         p2--
       }
     }
