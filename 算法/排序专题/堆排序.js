@@ -62,4 +62,47 @@ function heapSort(nums) {
   }
 }
 
+// 小顶堆降序排序
+/**
+ * @param {Array<number>} nums 
+ */
+function minHeapSort(nums) {
+  const numsLen = nums.length
+  let heapSize = numsLen
+  buildMinHeap()
+
+  for (let i = heapSize - 1; i >= 1; i--) {
+    swap(0, i)
+    heapSize--
+    down(0)
+  }
+  return nums
+  function buildMinHeap() {
+    const lastLeafNode = Math.floor(heapSize / 2 - 1)
+    for (let i = lastLeafNode; i >= 0; i--) {
+      down(i)
+    }
+  }
+  function down(i) {
+    const left = 2 * i + 1
+    const right = 2 * i + 2
+    let min = i
+    if (left < heapSize && nums[left] < nums[min]) {
+      min = left
+    }
+    if (right < heapSize && nums[right] < nums[min]) {
+      min = right
+    }
+    
+    if (min !== i) {
+      swap(min, i)
+      down(min)
+    }
+  }
+  function swap(i, j) {
+    ;[nums[i], nums[j]] = [nums[j], nums[i]]
+  }
+}
+
 console.log(heapSort([5, 2, 6, 1, 3, 0]))
+console.log(minHeapSort([5, 2, 6, 1, 3, 0]))
