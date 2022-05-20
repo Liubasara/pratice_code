@@ -17,7 +17,7 @@ function heapSort(nums) {
   const numsLen = nums.length
   let heapSize = numsLen
   // 构建大顶堆
-  buildMaxHeap(heapSize)
+  buildMaxHeap()
 
   for (let i = heapSize - 1; i >= 1; i--) {
     // 第一步构建出了一个大顶堆，因此第一个元素一定是最大的元素
@@ -26,19 +26,19 @@ function heapSort(nums) {
     // 元素被放到最后一位后不再参与接下来的大顶堆构建
     heapSize--
     // 再次下沉构建大顶堆，直到最后只剩下一个元素为止
-    down(0, heapSize)
+    down(0)
   }
   return nums
-  function buildMaxHeap(heapSize) {
+  function buildMaxHeap() {
     // 拿到最后一个叶子根节点的位置
     const lastLeafNode = Math.floor(heapSize / 2 - 1)
     // 自下而上
     for (let i = lastLeafNode; i >= 0; i--) {
       // 对每一个叶子节点进行自上而下的节点调整
-      down(i, heapSize)
+      down(i)
     }
   }
-  function down(i, heapSize) {
+  function down(i) {
     let left = i * 2 + 1
     let right = i * 2 + 2
     // 拿到 根节点与左右子节点 之中的最大值
