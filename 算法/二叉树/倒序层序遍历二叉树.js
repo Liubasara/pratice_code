@@ -18,12 +18,9 @@
 var levelOrderBottom = function (root) {
   if (!root) return []
   const res = []
-  /**
-   * @param {TreeNodeStruct} node 
-   */
   function bfs(node) {
+    const queue = [{ node, depth: 1 }]
     let curr = [node.val]
-    let queue = [{ node, depth: 1 }]
     let currDepth = 0
     while (queue.length !== 0) {
       const tmp = queue.shift()
