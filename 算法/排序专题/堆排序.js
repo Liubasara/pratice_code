@@ -69,45 +69,59 @@ function heapSort(nums) {
   }
 }
 
-// 小顶堆降序排序
+// 小顶堆排序
 /**
  * @param {Array<number>} nums 
  */
 function minHeapSort(nums) {
   const numsLen = nums.length
-  let heapSize = numsLen
-  buildMinHeap()
-
-  for (let i = heapSize - 1; i >= 1; i--) {
-    swap(0, i)
-    heapSize--
-    down(0)
+  const heap = []
+  for (let i = 0; i < numsLen; i++) {
+    const numI = nums[i]
+    heapInsert(numI)
+  }
+  for (let i = 0; i < numsLen; i++) {
+    nums[i] = heapPop()
   }
   return nums
-  function buildMinHeap() {
-    const lastLeafNode = Math.floor(heapSize / 2 - 1)
-    for (let i = lastLeafNode; i >= 0; i--) {
-      down(i)
+  function swap(i, j) {
+    ;[heap[i], heap[j]] = [heap[j], heap[i]]
+  }
+  function heapInsert(key) {
+    heap.push(key)
+    const last = heap.length - 1
+    up(last)
+  }
+  function heapPop() {
+    const last = heap.length - 1
+    swap(last, 0)
+    const key = heap.pop()
+    down(0)
+    return key
+  }
+  function up(i) {
+    const parent = Math.floor((i - 1) / 2)
+    if (parent >= 0 && heap[i] < heap[parent]) {
+      swap(parent, i)
+      up(parent)
     }
   }
   function down(i) {
+    const heapLen = heap.length
     const left = 2 * i + 1
     const right = 2 * i + 2
     let min = i
-    if (left < heapSize && nums[left] < nums[min]) {
+    if (left < heapLen && heap[left] < heap[min]) {
       min = left
     }
-    if (right < heapSize && nums[right] < nums[min]) {
+    if (right < heapLen && heap[right] < heap[min]) {
       min = right
     }
-    
+
     if (min !== i) {
       swap(min, i)
       down(min)
     }
-  }
-  function swap(i, j) {
-    ;[nums[i], nums[j]] = [nums[j], nums[i]]
   }
 }
 
