@@ -98,12 +98,85 @@ var mergeKLists = function (lists) {
   return start(lists)
 };
 
+/**
+ * 构建小根堆做法
+ */
+
 !(() => {
   var firstNode = createNodeChainByList([1, 4, 5])
   var firstNode1 = createNodeChainByList([1, 3, 4])
   var firstNode2 = createNodeChainByList([2, 6])
   const mergeHead = mergeKLists([firstNode, firstNode1, firstNode2])
-  
+
+  let p1 = mergeHead
+  while (p1) {
+    console.log(p1.val)
+    p1 = p1.next
+  }
+  console.log('----------------------')
+})()
+
+
+/**
+ * 构建小根堆做法，每次遍历拿一个最小值，组成链表
+ * @param {ListNode[]} lists
+ * @return {ListNode}
+ */
+var mergeKListsMinHeap = function (lists) {
+  const listsLen = lists.length
+  if (listsLen < 1) return null
+  const heap = []
+  const dummyNode = new ListNode(null)
+  let pre = dummyNode
+  for (let i = 0; i < listsLen; i++) {
+    const head = lists[i]
+    let p1 = head
+    while (p1) {
+      heap.push(p1.val)
+      p1 = p1.next
+    }
+  }
+  buildMinHeap(heap)
+  while (heap.length !== 0) {
+    pre.next = new ListNode(heap.shift())
+    pre = pre.next
+    buildMinHeap(heap)
+  }
+  return dummyNode.next
+  function buildMinHeap(nums) {
+    const numsLen = nums.length
+    const lastLeafNode = Math.floor(numsLen / 2 - 1)
+    for (let i = lastLeafNode; i >= 0; i--) {
+      down(nums, i)
+    }
+  }
+  function down(nums, i) {
+    const numsLen = nums.length
+    const left = 2 * i + 1
+    const right = 2 * i + 2
+    let min = i
+
+    if (left < numsLen && nums[left] < nums[min]) {
+      min  = left
+    }
+
+    if (right < numsLen && nums[right] < nums[min]) {
+      min = right
+    }
+
+    if (min !== i) {
+      ;[nums[min], nums[i]] = [nums[i], nums[min]]
+      down(nums, min)
+    }
+  }
+};
+
+!(() => {
+  var firstNode = createNodeChainByList([1, 4, 5])
+  var firstNode1 = createNodeChainByList([1, 3, 4])
+  var firstNode2 = createNodeChainByList([2, 6])
+  const mergeHead = mergeKListsMinHeap([firstNode, firstNode1, firstNode2])
+
   let p1 = mergeHead
   while (p1) {
     console.log(p1.val)
