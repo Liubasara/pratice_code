@@ -128,41 +128,58 @@ var mergeKListsMinHeap = function (lists) {
     const head = lists[i]
     let p1 = head
     while (p1) {
-      heap.push(p1.val)
+      heapInsert(p1.val)
       p1 = p1.next
     }
   }
-  buildMinHeap(heap)
   while (heap.length !== 0) {
-    pre.next = new ListNode(heap.shift())
+    pre.next = new ListNode(heapPop())
     pre = pre.next
-    buildMinHeap(heap)
   }
   return dummyNode.next
-  function buildMinHeap(nums) {
-    const numsLen = nums.length
-    const lastLeafNode = Math.floor(numsLen / 2 - 1)
-    for (let i = lastLeafNode; i >= 0; i--) {
-      down(nums, i)
+  function swap(i, j) {
+    ;[heap[i], heap[j]] = [heap[j], heap[i]]
+  }
+  function heapInsert(key) {
+    // heap 的 insert 方法是把 key 放到最后一个叶子节点下
+    // 再从最后一个节点开始上浮排序
+    heap.push(key)
+    const last = heap.length - 1
+    up(last)
+    return key
+  }
+  function heapPop() {
+    // heap 的 pop 方法是把根节点推出去
+    const last = heap.length - 1
+    swap(0, last)
+    const key = heap.pop()
+    down(0)
+    return key
+  }
+  function up(i) {
+    const parent = Math.floor((i - 1) / 2)
+    if (parent >= 0 && heap[i] < heap[parent]) {
+      swap(parent, i)
+      up(parent)
     }
   }
-  function down(nums, i) {
-    const numsLen = nums.length
+  function down(i) {
+    const heapLen = heap.length
     const left = 2 * i + 1
     const right = 2 * i + 2
     let min = i
 
-    if (left < numsLen && nums[left] < nums[min]) {
+    if (left < heapLen && heap[left] < heap[min]) {
       min  = left
     }
 
-    if (right < numsLen && nums[right] < nums[min]) {
+    if (right < heapLen && heap[right] < heap[min]) {
       min = right
     }
 
     if (min !== i) {
-      ;[nums[min], nums[i]] = [nums[i], nums[min]]
-      down(nums, min)
+      swap(min, i)
+      down(min)
     }
   }
 };
