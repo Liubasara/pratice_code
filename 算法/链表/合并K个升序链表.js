@@ -98,10 +98,6 @@ var mergeKLists = function (lists) {
   return start(lists)
 };
 
-/**
- * 构建小根堆做法
- */
-
 !(() => {
   var firstNode = createNodeChainByList([1, 4, 5])
   var firstNode1 = createNodeChainByList([1, 3, 4])
