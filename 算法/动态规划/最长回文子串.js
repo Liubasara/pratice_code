@@ -28,18 +28,18 @@
  * @param {string} s
  * @return {string}
  */
-var longestPalindrome = function(s) {
+var longestPalindromeOld = function (s) {
   var len = s.length
   if (len === 0) return ''
   if (len === 1) return s
-  
+
   var dp = new Array(len)
   for (let i = 0; i < len; i++) {
     dp[i] = new Array(len)
   }
   var targetI = 0
   var targetJ = 0
-  
+
   // 初始化
   for (let i = 0; i < len; i++) {
     for (let j = i; j < len; j++) {
@@ -55,7 +55,7 @@ var longestPalindrome = function(s) {
       }
     }
   }
-  
+
   // PS：由于 dp[i][j] 依赖的是 dp[i + 1][j - 1]，即数组的下一行和上一列，所以在计算时应该按列来遍历计算，以防止某些项在计算时无法找到依赖
   for (let j = 2; j < len; j++) {
     for (let i = 0; i < j; i++) {
@@ -72,4 +72,40 @@ var longestPalindrome = function(s) {
   return s.slice(targetI, targetJ + 1)
 };
 
-console.log(longestPalindrome("abcba"))
+/**
+ * 思路：
+    首先往左寻找与当期位置相同的字符，直到遇到不相等为止。
+    然后往右寻找与当期位置相同的字符，直到遇到不相等为止。
+    最后左右双向扩散，直到左和右不相等。此时记录下该子串长度和起始位置/起始位置和终止位置 并于当前最大值比较
+ * 高阶dp：中心扩展法 https://leetcode.cn/problems/longest-palindromic-substring/solution/zui-chang-hui-wen-zi-chuan-dong-tai-gui-k1shm/
+ * @param {string} s
+ * @return {string}
+ */
+var longestPalindrome = function (s) {
+  const sLen = s.length
+  if (sLen <= 1) return s
+  let maxLeft = 0
+  let maxRight = 0
+  for (let i = 0; i < sLen; i++) {
+    const sI = s[i]
+    let left = i
+    let right = i
+    while (left >= 0 && s[left] === sI) left--
+    while (right < sLen && s[right] === sI) right++
+    while (left >= 0 && right < sLen && s[left] === s[right]) {
+      left--
+      right++
+    }
+    // 逆转最后一次循环，让指针回到最后一次正确的结果上
+    left++
+    right--
+    if (maxRight - maxLeft < right - left) {
+      maxLeft = left
+      maxRight = right
+    }
+  }
+  return s.slice(maxLeft, maxRight + 1)
+};
+
+console.log(longestPalindrome("abcba")) // abcba
+console.log(longestPalindrome("cbbd")) // bb
