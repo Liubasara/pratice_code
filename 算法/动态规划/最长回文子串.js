@@ -84,7 +84,7 @@ var longestPalindromeOld = function (s) {
 var longestPalindrome = function (s) {
   const sLen = s.length
   if (sLen <= 1) return s
-  let maxLeft = 0
+  let minLeft = 0
   let maxRight = 0
   for (let i = 0; i < sLen; i++) {
     const sI = s[i]
@@ -99,12 +99,12 @@ var longestPalindrome = function (s) {
     // 逆转最后一次循环，让指针回到最后一次正确的结果上
     left++
     right--
-    if (maxRight - maxLeft < right - left) {
-      maxLeft = left
+    if (maxRight - minLeft < right - left) {
+      minLeft = left
       maxRight = right
     }
   }
-  return s.slice(maxLeft, maxRight + 1)
+  return s.slice(minLeft, maxRight + 1)
 };
 
 console.log(longestPalindrome("abcba")) // abcba
