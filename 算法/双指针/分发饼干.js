@@ -37,7 +37,7 @@ var findContentChildren = function (g, s) {
   let p2 = 0
   let counter = 0
   while (p1 < gLen && p2 < sLen) {
-    while (s[p2] < g[p1]) {
+    while (g[p1] > s[p2]) {
       p2++
     }
     if (s[p2] >= g[p1]) {
