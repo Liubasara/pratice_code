@@ -104,7 +104,6 @@ var hasPathSum = function (root, targetSum) {
   function dfs(node, sum) {
     if (sum === targetSum && !node.left && !node.right) {
       res.push([...curr])
-      hasFind = true
       return
     }
     curr.push(node.val)
