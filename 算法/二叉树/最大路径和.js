@@ -99,11 +99,11 @@ var maxPathSum = function (root) {
     const left = dfs(node.left)
     const right = dfs(node.right)
     // 左/右节点，加上根节点所能返回的最大路径值
-    const maxHalfSum = Math.max(node.val, node.val + left, node.val + right)
+    const ret = Math.max(node.val, node.val + left, node.val + right)
     // 把左右节点都加上所能提供的最大的路径值
-    const theMaxSum = Math.max(maxHalfSum, node.val + left + right)
+    const theMaxSum = Math.max(ret, node.val + left + right)
     maxSum = Math.max(maxSum, theMaxSum)
-    return maxHalfSum
+    return ret
   }
   dfs(root)
   return maxSum
