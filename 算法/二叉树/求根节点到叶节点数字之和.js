@@ -119,7 +119,36 @@ var sumNumbers = function (root) {
   return res
 };
 
-; (() => {
+// 非递归写法: https://leetcode.cn/problems/sum-root-to-leaf-numbers/solution/bfs-dfs-by-xxxxxxoooooo/
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var sumNumbersNonRecursive = function (root) {
+  if (!root) return 0
+  let res = 0
+
+  function bfs(node) {
+    const queue = [{ node, val: node.val }]
+    while (queue.length) {
+      const tmp = queue.shift()
+      const { node: theNode, val: theVal } = tmp
+      if (!theNode.left && !theNode.right) {
+        res += theVal
+      }
+      if (theNode.left) {
+        queue.push({ node: theNode.left, val: theVal * 10 + theNode.left.val })
+      }
+      if (theNode.right) {
+        queue.push({ node: theNode.right, val: theVal * 10 + theNode.right.val })
+      }
+    }
+  }
+  bfs(root)
+  return res
+}
+
+!(() => {
   // 1026
   console.log(sumNumbers(BinarytreeNode.creatByArray([4, 9, 0, 5, 1])))
   // 25
@@ -128,4 +157,17 @@ var sumNumbers = function (root) {
   console.log(sumNumbers(BinarytreeNode.creatByArray([1, 0])))
   // 531
   console.log(sumNumbers(BinarytreeNode.creatByArray([4, 9, 0, null, 1])))
+})()
+
+!(() => {
+  console.log('-------非递归-------')
+  // 1026
+  console.log(sumNumbersNonRecursive(BinarytreeNode.creatByArray([4, 9, 0, 5, 1])))
+  // 25
+  console.log(sumNumbersNonRecursive(BinarytreeNode.creatByArray([1, 2, 3])))
+  // 10
+  console.log(sumNumbers(BinarytreeNode.creatByArray([1, 0])))
+  // 531
+  console.log(sumNumbersNonRecursive(BinarytreeNode.creatByArray([4, 9, 0, null, 1])))
+  console.log('--------------------')
 })()
