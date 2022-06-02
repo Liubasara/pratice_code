@@ -106,12 +106,13 @@ var hasPathSum = function (root, targetSum) {
       res.push([...curr])
       return
     }
-    curr.push(node.val)
     if (node.left) {
+      curr.push(node.left.val)
       dfs(node.left, sum + node.left.val)
       curr.pop()
     }
     if (node.right) {
+      curr.push(node.right.val)
       dfs(node.right, sum + node.right.val)
       curr.pop()
     }
