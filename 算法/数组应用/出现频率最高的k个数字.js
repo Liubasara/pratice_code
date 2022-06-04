@@ -30,15 +30,17 @@
  * @return {number[]}
  */
 var topKFrequent = function (nums, k) {
-  const heap = []
+  const numsLen = nums.length
   const numsMap = {}
-  for (let i = 0; i < nums.length; i++) {
+  for (let i = 0; i < numsLen; i++) {
     const numI = nums[i]
     numsMap[numI] = numsMap[numI] ? numsMap[numI] + 1 : 1
   }
-  const numsFreq = Object.values(numsMap)
-  for (let i = 0; i < numsFreq.length; i++) {
-    const freqI = numsFreq[i]
+  const numFreqs = Object.values(numsMap)
+  const numFreqsLen = numFreqs.length
+  const heap = []
+  for (let i = 0; i < numFreqsLen; i++) {
+    const freqI = numFreqs[i]
     if (heap.length < k) {
       heapInsert(freqI)
     } else {
@@ -48,13 +50,12 @@ var topKFrequent = function (nums, k) {
       }
     }
   }
-  const minFreq = heap[0]
   const res = []
   const allNums = Object.keys(numsMap)
   for (let i = 0; i < allNums.length; i++) {
-    const numI = +allNums[i]
-    if (numsMap[numI] >= minFreq) {
-      res.push(numI)
+    const allNumI = +allNums[i]
+    if (numsMap[allNumI] >= heap[0]) {
+      res.push(allNumI)
     }
   }
   return res
@@ -76,12 +77,8 @@ var topKFrequent = function (nums, k) {
   }
   function up(i) {
     const parent = Math.floor((i - 1) / 2)
-    let min = parent
-    if (parent >= 0 && heap[min] > heap[i]) {
-      min = i
-    }
-    if (min !== parent) {
-      swap(min, parent)
+    if (parent >= 0 && heap[parent] > heap[i]) {
+      swap(parent, i)
       up(parent)
     }
   }
