@@ -27,27 +27,27 @@
  */
 var search = function (nums, target) {
   const numsLen = nums.length
-  if (!numsLen) return -1
-  if (numsLen === 1) return nums[0] === target ? 0 : -1
   let start = 0
   let end = numsLen - 1
   let pointIdx = -1
-  while (start <= end) {
+  while (start < end) {
     pointIdx = Math.floor((start + end) / 2)
-    if (nums[pointIdx] === target) return pointIdx
     if (nums[pointIdx] >= nums[0]) {
-      if (nums[pointIdx] > target && nums[0] <= target) {
-        end = pointIdx - 1
+      if (target >= nums[0] && nums[pointIdx] >= target) {
+        end = pointIdx
       } else {
         start = pointIdx + 1
       }
     } else {
-      if (nums[pointIdx] < target && nums[numsLen - 1] >= target) {
+      if (target <= nums[numsLen - 1] && nums[pointIdx] < target) {
         start = pointIdx + 1
       } else {
-        end = pointIdx - 1
+        end = pointIdx
       }
     }
+  }
+  if (nums[start] === target) {
+    return start
   }
   return -1
 }
