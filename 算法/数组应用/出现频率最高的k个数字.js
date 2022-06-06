@@ -36,11 +36,10 @@ var topKFrequent = function (nums, k) {
     const numI = nums[i]
     numsMap[numI] = numsMap[numI] ? numsMap[numI] + 1 : 1
   }
-  const numFreqs = Object.values(numsMap)
-  const numFreqsLen = numFreqs.length
+  const freqs = Object.values(numsMap)
   const heap = []
-  for (let i = 0; i < numFreqsLen; i++) {
-    const freqI = numFreqs[i]
+  for (let i = 0; i < freqs.length; i++) {
+    const freqI = freqs[i]
     if (heap.length < k) {
       heapInsert(freqI)
     } else {
