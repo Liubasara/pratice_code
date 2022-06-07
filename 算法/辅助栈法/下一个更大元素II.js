@@ -27,19 +27,17 @@
  */
 var nextGreaterElements = function (nums) {
   const numsLen = nums.length
-  // 单调递增栈，存储元素的下标，确保下标代表的元素，从栈底到栈顶元素递增
-  // 如果元素是单调递减的（则他们的「下一个更大元素」相同），我们就把这些元素保存
-  // 直到找到一个较大的元素；把该较大元素逐一跟保存了的元素比较，如果该元素更大，那么它就是前面元素的「下一个更大元素」。
+  // 本题使用的是单调递减栈，即从栈底到栈顶的元素是递减的，栈底的元素最大
   const stack = []
   const res = new Array(numsLen).fill(-1)
   for (let i = 0; i < 2 * numsLen - 1; i++) {
     // 循环数组 nums[i % numsLen], i++ 可以一直循环获取数组中的元素
-    const idx = i % numsLen
-    const numI = nums[idx]
+    const numIdx = i % numsLen
+    const numI = nums[numIdx]
     while (stack.length && nums[stack[stack.length - 1]] < numI) {
       res[stack.pop()] = numI
     }
-    stack.push(idx)
+    stack.push(numIdx)
   }
   return res
 };
