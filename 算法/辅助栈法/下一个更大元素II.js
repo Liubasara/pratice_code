@@ -27,7 +27,7 @@
  */
 var nextGreaterElements = function (nums) {
   const numsLen = nums.length
-  // 本题使用的是单调递减栈，即从栈底到栈顶的元素是递减的，栈底的元素最大
+  // 本题使用的是单调递增栈，即从栈底到栈顶的元素是递增的(相当于一个倒序排序的数组)，栈顶的元素最大
   const stack = []
   const res = new Array(numsLen).fill(-1)
   for (let i = 0; i < 2 * numsLen - 1; i++) {
