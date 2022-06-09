@@ -22,11 +22,31 @@
  */
 var trap = function (height) {
   const heightLen = height.length
+  // 单调递减栈，相当于一个倒序数组
   const stack = []
+  let res = 0
   for (let i = 0; i < heightLen; i++) {
     const heightI = height[i]
-    
+    // 单调递减栈，最新 push 进去的一定得是最小的，比它小的数全都要出栈进行判断
+    while (stack.length && height[stack[stack.length - 1]] < heightI) {
+      const rightIdx = i
+      const right = heightI
+      const midIdx = stack.pop()
+      const mid = height[midIdx]
+      if (!stack.length) {
+        // 漏勺，左边没有墙，雨水接不住
+        break
+      }
+      // left 只用于判断，不会出栈
+      const leftIdx = stack[stack.length - 1]
+      const left = height[leftIdx]
+      const curWidth = rightIdx - leftIdx - 1
+      const curHeight = Math.min(left, right) - mid
+      res += curWidth * curHeight
+    }
+    stack.push(i)
   }
+  return res
 };
 
 // 6
