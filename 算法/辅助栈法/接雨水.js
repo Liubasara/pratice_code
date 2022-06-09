@@ -53,3 +53,28 @@ var trap = function (height) {
 console.log(trap([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]))
 // 9
 console.log(trap([4, 2, 0, 3, 2, 5]))
+
+/**
+ * 双指针 对撞指针做法
+ * @param {numbers[]} height 
+ * @returns 
+ */
+var trap = function (height) {
+  let res = 0
+  let left = 0
+  let right = height.length - 1
+  let leftMax = 0
+  let rightMax = 0
+  while (left < right) {
+    leftMax = Math.max(leftMax, height[left])
+    rightMax = Math.max(rightMax, height[right])
+    if (height[left] < height[right]) {
+      res += leftMax - height[left]
+      left++
+    } else {
+      res += rightMax - height[right]
+      right--
+    }
+  }
+  return res
+}
