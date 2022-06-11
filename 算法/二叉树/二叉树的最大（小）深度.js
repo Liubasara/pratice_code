@@ -31,17 +31,19 @@
 var maxDepth = function (root) {
   if (!root) return 0
   let max = 0
-  let curr = 0
+  let curr = 1
   function dfs(node) {
-    curr++
-    if (curr > max) {
-      max = curr
+    if (!node.left && !node.right) {
+      max = Math.max(curr, max)
+      return
     }
     if (node.left) {
+      curr++
       dfs(node.left)
       curr--
     }
     if (node.right) {
+      curr++
       dfs(node.right)
       curr--
     }
