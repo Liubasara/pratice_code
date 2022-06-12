@@ -37,10 +37,11 @@
  */
 var change = function (amount, coins) {
   const dp = new Array(amount + 1).fill(0)
+  // 动态规划的边界是 dp[0]=1。只有当不选取任何硬币时，金额之和才为 0，因此只有 1 种硬币组合。
   dp[0] = 1
   for (let i = 0; i < coins.length; i++) {
     const coinI = coins[i]
-    for (let j = i; j < amount + 1; j++) {
+    for (let j = coinI; j < amount + 1; j++) {
       dp[j] += dp[j - coinI]
     }
   }
@@ -53,3 +54,5 @@ console.log(change(3, [2]))
 console.log(change(5, [1, 2, 5]))
 // 1
 console.log(change(10, [10]))
+// 1
+console.log(change(0, [1]))
