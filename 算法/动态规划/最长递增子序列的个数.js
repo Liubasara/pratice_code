@@ -82,16 +82,11 @@ function findLIS(
       let startIdx = 0
       let endIdx = resLen - 1
       let pointIdx = -1
-      while (startIdx <= endIdx) {
-        // startIdx + Math.floor((endIdx - startIdx) / 2)
+      while (startIdx < endIdx) {
         pointIdx = Math.floor((endIdx + startIdx) / 2)
         if (res[pointIdx] >= numI) {
-          if (res[pointIdx - 1] < numI || pointIdx - 1 < 0) {
-            // 找到目标 pointIdx 跳出循环
-            break
-          }
           // 往左继续二分
-          endIdx = pointIdx - 1
+          endIdx = pointIdx
         } else {
           // 往右继续二分
           startIdx = pointIdx + 1
@@ -109,9 +104,9 @@ function findLIS(
       // }
       // 顺序查找 end
 
-      res[pointIdx] = numI
-      idxRes[pointIdx] = i
-      p[i] = idxRes[pointIdx - 1]
+      res[startIdx] = numI
+      idxRes[startIdx] = i
+      p[i] = idxRes[startIdx - 1]
     }
   }
 
@@ -127,9 +122,9 @@ function findLIS(
     preIdx = p[preIdx]
   }
 
-  console.log('result ending', realRes, realIdxRes)
+  // console.log('result ending', realRes, realIdxRes)
   return realRes
 }
 
 console.log(findLIS([1, 4, 5, 2, 3, 7, 0])) // [1,2,3,7]
-// console.log(findLIS([4, 10, 4, 3, 8, 9])) // [3,8,9]
+console.log(findLIS([4, 10, 4, 3, 8, 9])) // [3,8,9]
