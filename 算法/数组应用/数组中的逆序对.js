@@ -41,7 +41,7 @@ var reversePairs = function (nums) {
   }
   function start(arr) {
     const arrLen = arr.length
-    if (arrLen === 1) return arr
+    if (arrLen <= 1) return arr
     const pointIdx = Math.floor(arrLen / 2)
     const leftArr = start(arr.slice(0, pointIdx))
     const rightArr = start(arr.slice(pointIdx))
