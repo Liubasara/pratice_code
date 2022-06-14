@@ -42,7 +42,9 @@ var change = function (amount, coins) {
   for (let i = 0; i < coins.length; i++) {
     const coinI = coins[i]
     for (let j = coinI; j < amount + 1; j++) {
-      dp[j] += dp[j - coinI]
+      if (j - coinI >= 0) {
+        dp[j] += dp[j - coinI]
+      }
     }
   }
   return dp[amount]

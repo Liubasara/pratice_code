@@ -41,11 +41,11 @@ var coinChange = function (coins, amount) {
   const coinsLen = coins.length
   const dp = new Array(amount + 1).fill(Infinity)
   dp[0] = 0
-  for (let i = 1; i < amount + 1; i++) {
-    for (let j = 0; j < coinsLen; j++) {
-      const coinJ = coins[j]
-      if (i >= coinJ) {
-        dp[i] = Math.min(dp[i], dp[i - coinJ] + 1)
+  for (let i = 0; i < coinsLen; i++) {
+    const coinI = coins[i]
+    for (let j = 0; j < amount + 1; j++) {
+      if (j - coinI >= 0) {
+        dp[j] = Math.min(dp[j - coinI] + 1, dp[j])
       }
     }
   }
