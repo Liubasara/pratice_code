@@ -43,10 +43,8 @@ var coinChange = function (coins, amount) {
   dp[0] = 0
   for (let i = 0; i < coinsLen; i++) {
     const coinI = coins[i]
-    for (let j = 0; j < amount + 1; j++) {
-      if (j - coinI >= 0) {
-        dp[j] = Math.min(dp[j - coinI] + 1, dp[j])
-      }
+    for (let j = coinI; j < amount + 1; j++) {
+      dp[j] = Math.min(dp[j - coinI] + 1, dp[j])
     }
   }
   return dp[amount] === Infinity ? -1 : dp[amount]
