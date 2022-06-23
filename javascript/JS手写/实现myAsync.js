@@ -4,6 +4,15 @@
 function myAsync(fn) {
   return new Promise((resolve, reject) => {
     const gen = fn()
+    function dealVal(val) {
+      Promise.resolve(val).then(data => {
+        next(data)
+        return data
+      }, err => {
+        throwErr(err)
+        return err
+      })
+    }
     function throwErr(err) {
       let ret
       try {
@@ -14,13 +23,7 @@ function myAsync(fn) {
       if (ret.done) {
         return reject(ret.value)
       }
-      Promise.resolve(ret.value).then(data => {
-        next(data)
-        return data
-      }, err => {
-        throwErr(err)
-        return err
-      })
+      dealVal(ret.value)
     }
     function next(val) {
       let ret
@@ -32,13 +35,7 @@ function myAsync(fn) {
       if (ret.done) {
         return resolve(ret.value)
       }
-      Promise.resolve(ret.value).then(data => {
-        next(data)
-        return data
-      }, err => {
-        throwErr(err)
-        return err
-      })
+      dealVal(ret.value)
     }
     next()
   })
