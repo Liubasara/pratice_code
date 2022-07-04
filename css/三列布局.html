@@ -155,23 +155,28 @@
 
   <p>方式4：flex: 1 布局<br>
      优点：方便，简单直接，大家都在用，两边侧边栏的高度可以随着内容区的高度而改变，子元素会默认占满并继承整个父元素的高度<br>
+     如果不想默认占满并继承整个父元素的高度，可在父容器添加 align-items: flex-start; 或是在对应子容器上添加 align-slef: flex-start;
   </p>
   <div class="box-wrapper">
-    <div style="display: flex; min-height: 100%;">
+    <div style="
+      display: flex;
+      min-height: 100%;
+      /* align-items: flex-start; */
+    ">
       <div style="
         width: 150px;
-        min-height: 100%;
         background: lightgray;
+        /* align-self: flex-start; */
       ">左侧栏</div>
       <div style="
         flex: 1;
-        min-height: 100%;
         background: lightgoldenrodyellow;
+        /* align-self: flex-start; */
       ">内容区</div>
       <div style="
         width: 150px;
-        min-height: 100%;
         background: lightcoral;
+        /* align-self: flex-start; */
       ">右侧栏</div>
     </div>
 
