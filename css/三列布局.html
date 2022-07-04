@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多种三列布局测试</title>
+  <title>多种三列布局测试（不使用 calc）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -20,9 +20,23 @@
       position: relative;
       height: 500px;
     }
+    .box-wrapper--no-height {
+      position: relative;
+      height: auto;
+    }
+    .clearfix::before {
+      content: '';
+      display: table;
+    }
+    .clearfix::after {
+      content: '';
+      clear: both;
+      display: block;
+    }
   </style>
 </head>
 <body>
+  <h1>多种三列布局测试（不使用 calc）</h1>
   <!-- 参考资料
        
        - https://juejin.im/post/6844903720149483528
@@ -67,30 +81,30 @@
   </div>
 
   <p>方式2：左右 float 中间自动撑开布局（又称为圣杯布局）<br>
-            优点：方便简单<br>
-            缺点：与方式1一样，但高度撑开父容器方面可以用 clearfix 解决
+            优点：方便简单，兼容性好<br>
+            缺点：与方式1一样，但高度撑开父容器方面可以用 clearfix 解决，且代码可读性差
   </p>
-  <div class="box-wrapper">
+  <div class="box-wrapper--no-height clearfix">
     <div style="
       float: left;
       height: 100%;
       width: 150px;
       background-color: lightgray;
-      min-height: 100%;
+      min-height: 500px;
     ">左边布局</div>
-    <div style="
-      float: left;
-      width: calc(100% - 300px);
-      background: lightgoldenrodyellow;
-      min-height: 100%;
-    ">内容区</div>
     <div style="
       float: right;
       height: 100%;
       width: 150px;
       background: lightcoral;
-      min-height: 100%;
+      min-height: 500px;
     ">右边侧栏</div>
+    <div style="
+      margin-left: 150px;
+      margin-right: 150px;
+      background: lightgoldenrodyellow;
+      min-height: 500px;
+    ">内容区</div>
   </div>
 
   <p>方式2.1：左右 float 中间自动撑开布局（又称为双飞翼布局）<br>
