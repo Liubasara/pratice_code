@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ellipsis单行多行省略号溢出</title>
+  <style>
+    .mg-top-50 {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <p>单行文本的省略</p>
+  <style>
+    .single-line {
+      overflow: hidden;
+      line-height: 40px;
+      width: 400px;
+      height: 40px;
+      border: 1px solid red;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+  <p class="single-line">
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+  </p>
+
+  <p class="mg-top-50">多行文本溢出省略: 基于高度截断（伪元素 + 定位）</p>
+  <style>
+    .multi-line-height {
+      position: relative;
+      line-height: 20px;
+      height: 40px;
+      overflow: hidden;
+      width: 400px;
+    }
+
+    .multi-line-height::after {
+      content: "...";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 0 20px 0 10px;
+    }
+  </style>
+  <p class="multi-line-height">
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem obcaecati alias dicta molestiae quas
+    veritatis ipsum vitae laborum neque sequi doloremque, culpa numquam consectetur quod eaque dolorum modi pariatur
+    debitis?这是一段很长的文本
+  </p>
+
+  <p class="mg-top-50">多行文本溢出省略: 基于行数(2行)截断（纯 css，仅限 webkit 浏览器）</p>
+  <style>
+    .multi-line-row-css {
+      width: 400px;
+      border-radius: 1px solid red;
+      -webkit-line-clamp: 2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .multi-line-row-css {
+      position: relative;
+      width: 400px;
+      line-height: 20px;
+      overflow: hidden;
+
+    }
+
+    .multi-line-row-css:after {
+      content: "...";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding-left: 40px;
+      background: -webkit-linear-gradient(left, transparent, #fff 55%);
+      background: -moz-linear-gradient(left, transparent, #fff 55%);
+      background: -o-linear-gradient(left, transparent, #fff 55%);
+      background: linear-gradient(to right, transparent, #fff 55%);
+    }
+  </style>
+  <p class="multi-line-row-css">
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+  </p>
+
+  <p class="mg-top-50">多行文本溢出省略: 基于行数(2行)截断（css + javascript，兼容性好）</p>
+  <style>
+    .multi-line-row-js {
+      position: relative;
+      width: 400px;
+      line-height: 20px;
+      overflow: hidden;
+    }
+
+    .multi-line-row-js-after::after {
+      content: "...";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding-left: 40px;
+      background: -webkit-linear-gradient(left, transparent, #fff 55%);
+      background: -moz-linear-gradient(left, transparent, #fff 55%);
+      background: -o-linear-gradient(left, transparent, #fff 55%);
+      background: linear-gradient(to right, transparent, #fff 55%);
+    }
+  </style>
+  <p class="multi-line-row-js">
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+    这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+  </p>
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      const limitRow = 4
+      const elm = document.querySelector('.multi-line-row-js')
+      const elmStyle = getComputedStyle(elm)
+      const lineHeight = parseInt(elmStyle.lineHeight)
+      const height = parseInt(elmStyle.height)
+      if (height / lineHeight > limitRow) {
+        elm.style.height = `${limitRow * lineHeight}px`
+        elm.classList.add('multi-line-row-js-after')
+      } else {
+        elm.classList.remove('multi-line-row-js-after')
+      }
+    })
+  </script>
+</body>
+
+</html>
