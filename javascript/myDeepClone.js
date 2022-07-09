@@ -1,5 +1,5 @@
 // 自定义方法用于判断Object和Array
-function isObject (obj) {
+function isObject(obj) {
   return typeof obj === 'object' && obj !== null
 }
 
@@ -8,20 +8,20 @@ function isObject (obj) {
  * @param {Array<any>|{[key: any]: any}} source 
  * @param {WeakMap} hash 
  */
-function myDeepClone (source, hash = new WeakMap()) {
+function myDeepClone(source, hash = new WeakMap()) {
   if (!isObject(source)) return source // 非Object和Array直接返回它的值
+  if (source instanceof Date) return new Date(source)
+  if (source instanceof RegExp) return new RegExp(source)
   if (hash.has(source)) return hash.get(source) // 若hash表中有该对象，则直接返回该对象的值(解决循环引用)
-  
+
   let target = Array.isArray(source) ? [] : {}
   hash.set(source, target)
-  
+
   for (let key in source) {
+    // 确保不是原型链上的属性
     if (Object.hasOwnProperty.call(source, key)) {
-      if (isObject(source[key])) {
-        target[key] = myDeepClone(source[key], hash) // 递归调用，传入hash表
-      } else {
-        target[key] = source[key]
-      }
+      // 递归调用，传入hash表
+      target[key] = myDeepClone(source[key], hash)
     }
   }
   return target
@@ -42,23 +42,23 @@ function cloneFunction(func) {
   const paramReg = /(?<=\().+(?=\)\s+{)/;
   const funcString = func.toString();
   if (func.prototype) {
-      console.log('普通函数');
-      const param = paramReg.exec(funcString);
-      const body = bodyReg.exec(funcString);
-      if (body) {
-          console.log('匹配到函数体：', body[0]);
-          if (param) {
-              const paramArr = param[0].split(',');
-              console.log('匹配到参数：', paramArr);
-              return new Function(...paramArr, body[0]);
-          } else {
-              return new Function(body[0]);
-          }
+    console.log('普通函数');
+    const param = paramReg.exec(funcString);
+    const body = bodyReg.exec(funcString);
+    if (body) {
+      console.log('匹配到函数体：', body[0]);
+      if (param) {
+        const paramArr = param[0].split(',');
+        console.log('匹配到参数：', paramArr);
+        return new Function(...paramArr, body[0]);
       } else {
-          return null;
+        return new Function(body[0]);
       }
+    } else {
+      return null;
+    }
   } else {
-      return eval(funcString);
+    return eval(funcString);
   }
 }
 
@@ -96,7 +96,7 @@ const isPlainObject = value => {
     // 如果传入的是一个纯对象，由于 Function.prototype.__proto__ === Object.prototype，Ctor instanceof Ctor 即为 true
     Ctor instanceof Ctor &&
     Function.prototype.toString.call(Ctor) ===
-      Function.prototype.toString.call(Object)
+    Function.prototype.toString.call(Object)
   )
 }
 
@@ -119,21 +119,21 @@ function produce(baseState, fn) {
     },
     set(target, key, val) {
       // 由于对值进行了设置，触发对象的懒劫持复制机制
-      
+
       // 这一步对整个外部对象里面所有的属性值都迭代浅拷贝，之后缓存并返回新的外部对象
       const copy = getCopy(target)
-      
+
       // 对新传入的值也进行 proxy 化处理
       const newValue = getProxy(val)
-      
+
       // 这里判断 proxy 化后的数据是否为一个已被 produce 处理过的 proxy（循环引用），如果是则根据上面的 get 规则返回其本身，如果不是则直接返回其本身（有可能是基本类型，如数值之类的）
       copy[key] = isProxy(newValue) ? newValue[MY_IMMER] : newValue
-      
+
       // set方法应该返回一个布尔值，返回true代表此次设置属性成功了，如果返回false且设置属性操作发生在严格模式下，那么会抛出一个TypeError。
       return true
     }
   }
-  
+
   /**
   用于获取一个对象的 proxy,如果传入的对象是已被 produce 处理过的 proxy 对象，则直接返回
   如果对象不是一个被 produce 处理过的对象，但是在缓存列表中却存在一个对应它的 Proxy，说明这是一个被循环引用的对象，则返回缓存过的 proxy
@@ -190,7 +190,7 @@ function produce(baseState, fn) {
     }
     return data
   }
-  
+
   // 获取该对象的 proxy 对象
   const proxy = getProxy(baseState)
   // 对对象进行设值，如果设值了这一步会触发 objectTraps 的 set 方法

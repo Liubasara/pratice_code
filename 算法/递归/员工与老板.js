@@ -1,4 +1,4 @@
-// @ts-check
+
 /**
  * 题目描述
  * 已知一个二维数组 nums ,存储着上下级的关系。其中第一个元素代表员工 employee,第二个元素代表老板 manager。当 manage 为 -1 时，代表没有上级了。最后通过 Json 的格式，输出上下级的关系。
@@ -35,9 +35,6 @@
  */
 function getRelation(nums, boss = -1) {
   const numsLen = nums.length
-  /**
-   * @type {(curBoss: number) => GetRelationReturn}
-   */
   function dfs(curBoss) {
     const res = []
     for (let i = 0; i < numsLen; i++) {
