@@ -1,16 +1,20 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@types/lodash': ^4.14.182
   '@types/node': ^18.0.5
+  lodash: ^4.17.21
   node-docker-api: ^1.1.22
   ts-node: ^10.9.1
   tslib: ^2.4.0
   typescript: ^4.7.4
 
 dependencies:
+  lodash: 4.17.21
   node-docker-api: 1.1.22
 
 devDependencies:
+  '@types/lodash': 4.14.182
   '@types/node': 18.0.5
   ts-node: 10.9.1_e7c2b6cd27a4263be2e5165451d6586c
   tslib: 2.4.0
@@ -55,6 +59,10 @@ packages:
 
   /@tsconfig/node16/1.0.3:
     resolution: {integrity: sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==}
+    dev: true
+
+  /@types/lodash/4.14.182:
+    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
     dev: true
 
   /@types/node/18.0.5:
@@ -124,6 +132,10 @@ packages:
   /jsonparse/0.0.5:
     resolution: {integrity: sha512-fw7Q/8gFR8iSekUi9I+HqWIap6mywuoe7hQIg3buTVjuZgALKj4HAmm0X6f+TaL4c9NJbvyFQdaI2ppr5p6dnQ==}
     engines: {'0': node >= 0.2.0}
+    dev: false
+
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
   /make-error/1.3.6:

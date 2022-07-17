@@ -1,4 +1,8 @@
 import { Docker } from 'node-docker-api'
+import { template } from 'lodash'
+import { readFile, writeFile } from 'fs/promises'
+import { createReadStream } from 'fs'
+import { resolve } from 'path'
 import type { Network } from 'node-docker-api/lib/network'
 import type { Container } from 'node-docker-api/lib/container'
 
@@ -21,7 +25,7 @@ const NGINX_CONTAINER_NAME = 'isolated_nginx_c'
   try {
     await clear()
     // TODO: 创建 nginx
-    // await createAndStartNginx()
+    await createAndStartNginx()
     const isoLoatedNetwork = await docker.network.create({
       Name: NETWORK_NAME,
       Driver: 'bridge'
@@ -38,8 +42,18 @@ const NGINX_CONTAINER_NAME = 'isolated_nginx_c'
 })()
 
 async function createAndStartNginx() {
-  // TODO:
-  await docker.container.create({
+  const nginxConf = await readFile(resolve(__dirname, '..', 'config', 'template.conf.example'), { encoding: 'utf-8' })
+  const compiledStr = template(nginxConf.toString())({
+    allLocations: `\n\
+      location /node1 {\n\
+        proxy_pass http://node1-network-test/;\n\
+      }\n\
+      location /node2 {\n\
+        proxy_pass http://node2-network-test/;\n\
+      }\n\
+  `})
+  await writeFile(resolve(__dirname, '..', 'config', 'template.conf'), compiledStr)
+  const nginxContainer = await docker.container.create({
     name: NGINX_CONTAINER_NAME,
     Image: 'nginx',
     HostConfig: {
@@ -48,20 +62,35 @@ async function createAndStartNginx() {
       }
     }
   })
+  await nginxContainer.start()
+  const readStream = createReadStream(Buffer.from(compiledStr), {
+    
+  })
+  await nginxContainer.fs.put(readStream, {
+    path: '/etc/nginx/conf.d/default.conf'
+  })
+  return nginxContainer
 }
 
 async function clear() {
+  // 清除公共 network
   await clearNetwork()
-  // TODO: 清除 nginx
-  // await clearNginx()
+  // 清除 nginx
+  await clearNginx()
 }
 
 async function clearNginx() {
-  // TODO: 清除 nginx
-  const containerList = await docker.container.list()
-  containerList.filter((container: fixContainer) => {
-    console.log(container)
+  // 清除 nginx container
+  const containerList = await docker.container.list({
+    all: true
   })
+  const matchContainers = containerList.filter((container: fixContainer) => {
+    return container.data.Names.some((name: string) => new RegExp(NGINX_CONTAINER_NAME).test(name))
+  })
+  await Promise.all(matchContainers.map(async (container: fixContainer) => {
+    await container.stop()
+    await container.delete()
+  }))
 }
 
 async function clearNetwork() {
