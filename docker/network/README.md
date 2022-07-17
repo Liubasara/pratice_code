@@ -1,0 +1,1 @@
+使用 docker-network 让容器彼此能够通过 hostname 进行服务发现，并使用 nginx 进行不同 hostname 的访问
