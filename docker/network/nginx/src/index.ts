@@ -62,19 +62,37 @@ async function reloadNginx(nginxC: fixContainer) {
 
 async function createAndStartNginx() {
   const nginxConf = await readFile(resolve(__dirname, '..', 'config', 'template.conf.example'), { encoding: 'utf-8' })
-  const compiledStr = template(nginxConf.toString())({
-    allLocations: `\n\
-      location / {\n\
-        rewrite ^ /node1 permanent;\n\
+  const indexHtml = await readFile(resolve(__dirname, '..', 'config', 'index.html.example'), { encoding: 'utf-8' })
+  const containerList = await docker.container.list()
+  let allLocations = `\
+    location / {\n\
+      root /etc/nginx/template;\n\
+    }\n\
+  `
+  let allProxy = ''
+  containerList.forEach((container: fixContainer) => {
+    const proxyName = container.data.Names[0].match(/\/(\w*)/)[1]
+    allLocations += `\
+      location /${proxyName} {\n\
+        proxy_pass http:/${container.data.Names[0]}/;\n\
       }\n\
-      location /node1 {\n\
-        proxy_pass http://node1-network-test/;\n\
-      }\n\
-      location /node2 {\n\
-        proxy_pass http://node2-network-test/;\n\
-      }\n\
-  `})
-  await writeFile(resolve(__dirname, '..', 'config', 'default.conf'), compiledStr)
+    `
+    allProxy += `\
+      <a href="/${proxyName}">${proxyName}</a>\n\
+    `
+  })
+  const compiledLocationsStr = template(nginxConf.toString())(
+    {
+      allLocations
+    }
+  )
+  const compiledHtmlStr = template(indexHtml.toString())(
+    {
+      allProxy
+    }
+  )
+  await writeFile(resolve(__dirname, '..', 'config', 'default.conf'), compiledLocationsStr)
+  await writeFile(resolve(__dirname, '..', 'config', 'index.html'), compiledHtmlStr)
   const nginxContainer = await docker.container.create({
     name: NGINX_CONTAINER_NAME,
     Image: 'nginx',
@@ -85,17 +103,35 @@ async function createAndStartNginx() {
     }
   })
   await nginxContainer.start()
-  const readStream = createTar(
-    {
-      cwd: resolve(__dirname, '..', 'config'),
-      gzip: true,
-      prefix: '/etc/nginx/conf.d'
-    },
-    ['default.conf']
-  )
-  await nginxContainer.fs.put(readStream as any, {
-    path: '/'
-  })
+  await Promise.all([
+    (async () => {
+      const readStream = createTar(
+        {
+          cwd: resolve(__dirname, '..', 'config'),
+          gzip: true,
+          prefix: '/etc/nginx/conf.d'
+        },
+        ['default.conf']
+      )
+      await nginxContainer.fs.put(readStream as any, {
+        path: '/'
+      })
+    })(),
+    (async () => {
+      const readStream = createTar(
+        {
+          cwd: resolve(__dirname, '..', 'config'),
+          gzip: true,
+          prefix: '/etc/nginx/template'
+        },
+        ['index.html']
+      )
+      await nginxContainer.fs.put(readStream as any, {
+        path: '/'
+      })
+    })()
+  ])
+
   return nginxContainer
 }
 
@@ -115,7 +151,7 @@ async function clearNginx() {
     return container.data.Names.some((name: string) => new RegExp(NGINX_CONTAINER_NAME).test(name))
   })
   await Promise.all(matchContainers.map(async (container: fixContainer) => {
-    await container.stop()
+    container.data.State === 'running' && await container.stop()
     await container.delete()
   }))
 }
