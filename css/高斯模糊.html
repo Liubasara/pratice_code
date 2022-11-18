@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>filter 和 backdrop-filter 实现高斯模糊滤镜</title>
+
+    <style>
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        display: flex;
+      }
+
+      .backdrop {
+        position: relative;
+        width: 300px;
+        height: 500px;
+        background: url(https://www.wptunnel.com/wp-content/uploads/2021/07/wptunnel-hd-beautiful-wallpaper-4.jpg);
+        background-size: cover;
+        margin: auto;
+        cursor: pointer;
+        overflow: hidden;
+        color: red;
+      }
+
+      .backdrop .content {
+        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.6);
+        width: 100%;
+        height: 100%;
+      }
+
+      .filter {
+        position: relative;
+        width: 300px;
+        height: 500px;
+        background-size: cover;
+        margin: auto;
+        cursor: pointer;
+        overflow: hidden;
+        color: red;
+      }
+
+      .filter .mask {
+        background: url(https://www.wptunnel.com/wp-content/uploads/2021/07/wptunnel-hd-beautiful-wallpaper-4.jpg);
+        background-size: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        filter: blur(10px);
+        z-index: -1;
+      }
+
+      .filter .content {
+        background: rgba(0, 0, 0, 0.6);
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap backdrop"><div class="content">backdrop-filter实现</div></div>
+    <div class="filter">
+      <div class="mask"></div>
+      <div class="content">filter实现</div>
+    </div>
+  </body>
+</html>
