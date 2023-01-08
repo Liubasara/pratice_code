@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "HelloWorld": {
+      "commandName": "Project",
+      "sqlDebugging": true,
+      "nativeDebugging": true
+    }
+  }
+}

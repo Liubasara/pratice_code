@@ -1,0 +1,15 @@
+D:\github\praticeCode\c#\HelloWorld\bin\Debug\net7.0\HelloWorld.exe
+D:\github\praticeCode\c#\HelloWorld\bin\Debug\net7.0\HelloWorld.deps.json
+D:\github\praticeCode\c#\HelloWorld\bin\Debug\net7.0\HelloWorld.runtimeconfig.json
+D:\github\praticeCode\c#\HelloWorld\bin\Debug\net7.0\HelloWorld.dll
+D:\github\praticeCode\c#\HelloWorld\bin\Debug\net7.0\HelloWorld.pdb
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.csproj.AssemblyReference.cache
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.GeneratedMSBuildEditorConfig.editorconfig
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.AssemblyInfoInputs.cache
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.AssemblyInfo.cs
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.csproj.CoreCompileInputs.cache
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.dll
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\refint\HelloWorld.dll
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.pdb
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\HelloWorld.genruntimeconfig.cache
+D:\github\praticeCode\c#\HelloWorld\obj\Debug\net7.0\ref\HelloWorld.dll
