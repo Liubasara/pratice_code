@@ -1,4 +1,4 @@
-function getProxy (fn) {
+function getSingle (fn) {
   let single
   return function (...args) {
     return single || (single = fn.apply(this, args))
@@ -9,7 +9,7 @@ function MyTestObj () {
   return {}
 }
 
-const getSingleTestObj = getProxy(MyTestObj)
+const getSingleTestObj = getSingle(MyTestObj)
 
 console.log(getSingleTestObj() === getSingleTestObj())
 
