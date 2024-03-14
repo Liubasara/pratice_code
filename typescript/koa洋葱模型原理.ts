@@ -58,3 +58,12 @@ use(mw3);
 const fn = compose(middleware);
 
 fn();
+
+/*
+输出：
+[LOG]: "next前，第一个中间件" 
+[LOG]: "next前，第二个中间件" 
+[LOG]: "第三个中间件，没有next了" 
+[LOG]: "next后，第二个中间件" 
+[LOG]: "next后，第一个中间件" 
+*/
